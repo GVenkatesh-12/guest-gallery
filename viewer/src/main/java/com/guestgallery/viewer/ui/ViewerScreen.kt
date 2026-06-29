@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,13 +47,11 @@ import com.guestgallery.domain.model.ViewerBackground
  * fades in/out on tap. Supports slideshow mode, metadata display, and
  * configurable viewer background.
  *
- * @param onSettingsClick Callback when the settings icon is tapped.
  * @param onExitClick     Callback when the back / exit button is tapped.
  * @param viewModel       Injected Hilt ViewModel.
  */
 @Composable
 fun ViewerScreen(
-    onSettingsClick: () -> Unit,
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ViewerViewModel = hiltViewModel(),
@@ -130,7 +127,6 @@ fun ViewerScreen(
                 isSlideshowActive = uiState.isSlideshowActive,
                 enableSlideshow = uiState.settings.enableSlideshow,
                 onExitClick = onExitClick,
-                onSettingsClick = onSettingsClick,
                 onSlideshowToggle = {
                     if (uiState.isSlideshowActive) {
                         viewModel.stopSlideshow()
@@ -173,7 +169,6 @@ private fun TopOverlay(
     isSlideshowActive: Boolean,
     enableSlideshow: Boolean,
     onExitClick: () -> Unit,
-    onSettingsClick: () -> Unit,
     onSlideshowToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -227,14 +222,6 @@ private fun TopOverlay(
                     tint = Color.White,
                 )
             }
-        }
-
-        IconButton(onClick = onSettingsClick) {
-            Icon(
-                imageVector = Icons.Rounded.Settings,
-                contentDescription = "Open settings",
-                tint = Color.White,
-            )
         }
     }
 }

@@ -67,7 +67,6 @@ fun AppNavHost(
 
         // Viewer route
         viewerScreen(
-            onSettingsClick = { navController.navigateToSettings() },
             onExitClick = { mainViewModel.requestExit() },
         )
 

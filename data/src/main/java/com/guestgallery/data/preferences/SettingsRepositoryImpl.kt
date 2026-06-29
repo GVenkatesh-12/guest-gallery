@@ -240,7 +240,7 @@ class SettingsRepositoryImpl
             key: String,
             value: Boolean,
         ) {
-            val prefKey = booleanPreferencesKey(key)
+            val prefKey = booleanPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
 
@@ -248,7 +248,7 @@ class SettingsRepositoryImpl
             key: String,
             value: Int,
         ) {
-            val prefKey = intPreferencesKey(key)
+            val prefKey = intPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
 
@@ -256,7 +256,7 @@ class SettingsRepositoryImpl
             key: String,
             value: Float,
         ) {
-            val prefKey = floatPreferencesKey(key)
+            val prefKey = floatPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
 
@@ -264,7 +264,7 @@ class SettingsRepositoryImpl
             key: String,
             value: String,
         ) {
-            val prefKey = stringPreferencesKey(key)
+            val prefKey = stringPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
 
@@ -272,7 +272,7 @@ class SettingsRepositoryImpl
             key: String,
             value: Long,
         ) {
-            val prefKey = longPreferencesKey(key)
+            val prefKey = longPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
 
@@ -286,4 +286,13 @@ class SettingsRepositoryImpl
             // this to purge additional caches (e.g. image cache directories).
             dataStore.edit { it.clear() }
         }
+    }
+
+private val camelCaseBoundary = Regex("([a-z0-9])([A-Z])")
+
+private fun String.toPreferenceName(): String =
+    if ('_' in this) {
+        this
+    } else {
+        replace(camelCaseBoundary, "$1_$2").lowercase()
     }

@@ -11,16 +11,13 @@ const val VIEWER_ROUTE = "viewer"
 /**
  * Registers the viewer screen destination in the navigation graph.
  *
- * @param onSettingsClick Callback when settings is requested from the viewer.
  * @param onExitClick     Callback when the user exits the viewer.
  */
 fun NavGraphBuilder.viewerScreen(
-    onSettingsClick: () -> Unit,
     onExitClick: () -> Unit,
 ) {
     composable(VIEWER_ROUTE) {
         ViewerScreen(
-            onSettingsClick = onSettingsClick,
             onExitClick = onExitClick,
         )
     }
