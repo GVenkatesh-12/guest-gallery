@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.guestgallery.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.guestgallery.app"
@@ -121,5 +121,6 @@ dependencies {
 
     // Testing
     testImplementation(libs.bundles.testing)
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.bundles.android.testing)
 }
