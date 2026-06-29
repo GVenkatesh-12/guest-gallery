@@ -13,9 +13,7 @@ const val VIEWER_ROUTE = "viewer"
  *
  * @param onExitClick     Callback when the user exits the viewer.
  */
-fun NavGraphBuilder.viewerScreen(
-    onExitClick: () -> Unit,
-) {
+fun NavGraphBuilder.viewerScreen(onExitClick: () -> Unit) {
     composable(VIEWER_ROUTE) {
         ViewerScreen(
             onExitClick = onExitClick,
