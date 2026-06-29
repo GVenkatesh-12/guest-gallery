@@ -1,5 +1,6 @@
 package com.guestgallery.data.preferences
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -12,8 +13,11 @@ import com.guestgallery.domain.model.AppSettings
 import com.guestgallery.domain.model.TransitionStyle
 import com.guestgallery.domain.model.ViewerBackground
 import com.guestgallery.domain.repository.SettingsRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,6 +33,7 @@ class SettingsRepositoryImpl
     @Inject
     constructor(
         private val dataStore: DataStore<Preferences>,
+        @ApplicationContext private val context: Context,
     ) : SettingsRepository {
         private val defaults = AppSettings()
 
@@ -240,6 +245,8 @@ class SettingsRepositoryImpl
             key: String,
             value: Boolean,
         ) {
+            if (shouldSkipPersisting(key)) return
+
             val prefKey = booleanPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
@@ -248,6 +255,8 @@ class SettingsRepositoryImpl
             key: String,
             value: Int,
         ) {
+            if (shouldSkipPersisting(key)) return
+
             val prefKey = intPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
@@ -256,6 +265,8 @@ class SettingsRepositoryImpl
             key: String,
             value: Float,
         ) {
+            if (shouldSkipPersisting(key)) return
+
             val prefKey = floatPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
@@ -264,6 +275,8 @@ class SettingsRepositoryImpl
             key: String,
             value: String,
         ) {
+            if (shouldSkipPersisting(key)) return
+
             val prefKey = stringPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
@@ -272,6 +285,8 @@ class SettingsRepositoryImpl
             key: String,
             value: Long,
         ) {
+            if (shouldSkipPersisting(key)) return
+
             val prefKey = longPreferencesKey(key.toPreferenceName())
             dataStore.edit { it[prefKey] = value }
         }
@@ -281,10 +296,15 @@ class SettingsRepositoryImpl
         }
 
         override suspend fun clearCache() {
-            // DataStore doesn't have a separate cache — clearing preferences
-            // effectively removes all cached state. Subclasses can override
-            // this to purge additional caches (e.g. image cache directories).
-            dataStore.edit { it.clear() }
+            context.cacheDir.deleteContents()
+            context.externalCacheDirs.filterNotNull().forEach { it.deleteContents() }
+        }
+
+        private suspend fun shouldSkipPersisting(key: String): Boolean {
+            val preferenceName = key.toPreferenceName()
+            if (preferenceName == PreferencesKeys.INCOGNITO_MODE.name) return false
+
+            return dataStore.data.first()[PreferencesKeys.INCOGNITO_MODE] == true
         }
     }
 
@@ -296,3 +316,13 @@ private fun String.toPreferenceName(): String =
     } else {
         replace(camelCaseBoundary, "$1_$2").lowercase()
     }
+
+private fun File.deleteContents() {
+    listFiles()?.forEach { child ->
+        if (child.isDirectory) {
+            child.deleteRecursively()
+        } else {
+            child.delete()
+        }
+    }
+}

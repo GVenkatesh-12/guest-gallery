@@ -31,9 +31,9 @@ class MainViewModel
         getSettingsUseCase: GetSettingsUseCase,
     ) : ViewModel() {
         /** Observable settings stream, shared across collectors. */
-        val settings: StateFlow<AppSettings> =
+        val settings: StateFlow<AppSettings?> =
             getSettingsUseCase()
-                .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
+                .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
         private val _appState = MutableStateFlow<AppState>(AppState.Welcome)
         val appState: StateFlow<AppState> = _appState.asStateFlow()
@@ -70,8 +70,9 @@ class MainViewModel
         fun requestExit() {
             val currentSettings = settings.value
             val authRequired =
-                currentSettings.requireFingerprintToExit ||
-                    currentSettings.requirePinToExit
+                currentSettings?.let {
+                    it.requireFingerprintToExit || it.requirePinToExit
+                } ?: true
 
             if (authRequired) {
                 _appState.value = AppState.ExitAuth

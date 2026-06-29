@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -55,6 +57,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val currentSettings = settings
 
     var securityExpanded by remember { mutableStateOf(true) }
     var viewerExpanded by remember { mutableStateOf(false) }
@@ -65,6 +68,29 @@ fun SettingsScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    if (currentSettings == null) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                GuestGalleryTopBar(
+                    title = "Settings",
+                    onBackClick = onBackClick,
+                )
+            },
+        ) { innerPadding ->
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        return
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -94,7 +120,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = securityExpanded) {
                     SecuritySettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         onUpdate = { key, value -> viewModel.updateBoolean(key, value) },
                     )
                 }
@@ -112,7 +138,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = viewerExpanded) {
                     ViewerSettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         viewModel = viewModel,
                     )
                 }
@@ -130,7 +156,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = appearanceExpanded) {
                     AppearanceSettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         viewModel = viewModel,
                     )
                 }
@@ -148,7 +174,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = privacyExpanded) {
                     PrivacySettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         viewModel = viewModel,
                     )
                 }
@@ -166,7 +192,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = performanceExpanded) {
                     PerformanceSettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         viewModel = viewModel,
                     )
                 }
@@ -184,7 +210,7 @@ fun SettingsScreen(
             item {
                 AnimatedCategoryVisibility(visible = accessibilityExpanded) {
                     AccessibilitySettingsSection(
-                        settings = settings,
+                        settings = currentSettings,
                         viewModel = viewModel,
                     )
                 }

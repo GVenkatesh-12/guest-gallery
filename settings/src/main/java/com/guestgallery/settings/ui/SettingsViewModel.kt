@@ -17,12 +17,12 @@ class SettingsViewModel
     constructor(
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        val settings: StateFlow<AppSettings> =
+        val settings: StateFlow<AppSettings?> =
             settingsRepository.observeSettings()
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = AppSettings(),
+                    initialValue = null,
                 )
 
         fun updateBoolean(

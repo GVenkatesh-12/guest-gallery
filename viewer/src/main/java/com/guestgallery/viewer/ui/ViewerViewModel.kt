@@ -28,9 +28,10 @@ data class ViewerUiState(
     val imageUris: List<String> = emptyList(),
     val currentIndex: Int = 0,
     val totalCount: Int = 0,
-    val settings: AppSettings = AppSettings(),
+    val settings: AppSettings? = null,
     val showUi: Boolean = true,
     val isSlideshowActive: Boolean = false,
+    val exitRequested: Boolean = false,
 )
 
 /**
@@ -66,6 +67,7 @@ class ViewerViewModel
                     settings = settings,
                     showUi = local.showUi,
                     isSlideshowActive = local.isSlideshowActive,
+                    exitRequested = local.exitRequested,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -89,18 +91,27 @@ class ViewerViewModel
         /** Start the slideshow auto-advance. */
         fun startSlideshow() {
             val state = uiState.value
-            if (state.totalCount <= 1) return
+            val settings = state.settings ?: return
+            if (!settings.enableSlideshow || state.totalCount <= 1) return
 
             slideshowController?.stop()
             slideshowController =
                 SlideshowController(
                     scope = viewModelScope,
-                    delaySeconds = state.settings.slideshowSpeedSeconds,
-                    loop = state.settings.loopSlideshow,
+                    delaySeconds = settings.slideshowSpeedSeconds,
+                    loop = settings.loopSlideshow,
                     pageCount = state.totalCount,
                     onAdvance = { nextIndex ->
                         _localState.update {
                             it.copy(currentIndex = nextIndex, isSlideshowActive = true)
+                        }
+                    },
+                    onFinished = {
+                        _localState.update {
+                            it.copy(
+                                isSlideshowActive = false,
+                                exitRequested = settings.autoCloseAfterLastImage,
+                            )
                         }
                     },
                 ).also { controller ->
@@ -117,6 +128,11 @@ class ViewerViewModel
             _localState.update { it.copy(isSlideshowActive = false) }
         }
 
+        /** Called after the Activity has handled a viewer-driven exit request. */
+        fun onExitRequestConsumed() {
+            _localState.update { it.copy(exitRequested = false) }
+        }
+
         override fun onCleared() {
             super.onCleared()
             slideshowController?.stop()
@@ -129,5 +145,6 @@ class ViewerViewModel
             val currentIndex: Int = 0,
             val showUi: Boolean = true,
             val isSlideshowActive: Boolean = false,
+            val exitRequested: Boolean = false,
         )
     }

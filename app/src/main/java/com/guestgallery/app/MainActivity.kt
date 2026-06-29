@@ -2,12 +2,12 @@
 
 package com.guestgallery.app
 
+import android.content.pm.ActivityInfo
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -21,7 +21,9 @@ import androidx.lifecycle.lifecycleScope
 import com.guestgallery.app.navigation.AppNavHost
 import com.guestgallery.core.theme.GuestGalleryTheme
 import com.guestgallery.core.theme.ThemeMode
+import com.guestgallery.domain.model.AppSettings
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -35,14 +37,15 @@ import kotlinx.coroutines.launch
  * - Composing the root UI with [GuestGalleryTheme] + [AppNavHost]
  */
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Must be called before super.onCreate per the SplashScreen API contract
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
 
         super.onCreate(savedInstanceState)
+        splashScreen.setKeepOnScreenCondition { viewModel.settings.value == null }
 
         enableEdgeToEdge()
 
@@ -59,9 +62,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
+            val currentSettings = settings ?: return@setContent
 
             val themeMode =
-                when (settings.themeMode) {
+                when (currentSettings.themeMode) {
                     "light" -> ThemeMode.LIGHT
                     "dark" -> ThemeMode.DARK
                     else -> ThemeMode.SYSTEM
@@ -69,8 +73,8 @@ class MainActivity : ComponentActivity() {
 
             GuestGalleryTheme(
                 themeMode = themeMode,
-                dynamicColor = settings.dynamicColors,
-                oledMode = settings.oledBlackMode,
+                dynamicColor = currentSettings.dynamicColors,
+                oledMode = currentSettings.oledBlackMode,
             ) {
                 AppNavHost(
                     mainViewModel = viewModel,
@@ -130,14 +134,22 @@ class MainActivity : ComponentActivity() {
     private fun observeSecuritySettings() {
         lifecycleScope.launch {
             viewModel.settings.collectLatest { settings ->
+                if (settings == null) return@collectLatest
                 applySecurityFlags(settings)
             }
         }
     }
 
-    private fun applySecurityFlags(settings: com.guestgallery.domain.model.AppSettings) {
-        // FLAG_SECURE prevents screenshots and screen recording
-        if (settings.secureWindowFlag) {
+    private fun applySecurityFlags(settings: AppSettings) {
+        val shouldSecureWindow =
+            settings.secureWindowFlag ||
+                settings.disableScreenshots ||
+                settings.disableScreenRecording ||
+                settings.hideRecentAppsPreview ||
+                settings.blankScreenOnAppSwitch
+
+        // FLAG_SECURE prevents screenshots, screen recording, and overview previews.
+        if (shouldSecureWindow) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -171,6 +183,13 @@ class MainActivity : ComponentActivity() {
                 insetsController.show(WindowInsetsCompat.Type.systemBars())
             }
         }
+
+        requestedOrientation =
+            if (settings.lockOrientation) {
+                ActivityInfo.SCREEN_ORIENTATION_LOCKED
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
     }
 
     // ── Finish Event ─────────────────────────────────────────────────────────

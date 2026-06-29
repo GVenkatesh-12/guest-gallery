@@ -18,6 +18,7 @@ private const val MILLIS_PER_SECOND = 1_000L
  * @param loop           Whether to wrap around after the last page.
  * @param pageCount      Total number of pages in the viewer.
  * @param onAdvance      Callback invoked with the next page index.
+ * @param onFinished     Callback invoked when a non-looping slideshow reaches the end.
  */
 class SlideshowController(
     private val scope: CoroutineScope,
@@ -25,6 +26,7 @@ class SlideshowController(
     private val loop: Boolean,
     private val pageCount: Int,
     private val onAdvance: (nextIndex: Int) -> Unit,
+    private val onFinished: () -> Unit = {},
 ) {
     private var job: Job? = null
     private var currentIndex: Int = 0
@@ -50,6 +52,7 @@ class SlideshowController(
                             currentIndex = 0
                             onAdvance(0)
                         } else {
+                            onFinished()
                             break // reached the end — stop
                         }
                     } else {

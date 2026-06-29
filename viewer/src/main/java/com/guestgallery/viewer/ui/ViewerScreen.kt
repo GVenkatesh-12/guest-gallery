@@ -57,13 +57,15 @@ fun ViewerScreen(
     viewModel: ViewerViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val settings = uiState.settings
 
     val backgroundColor =
-        when (uiState.settings.viewerBackground) {
+        when (settings?.viewerBackground) {
             ViewerBackground.BLACK -> Color.Black
             ViewerBackground.DARK_GRAY -> Color(0xFF1A1A1A)
             ViewerBackground.GRAY -> Color(0xFF2E2E2E)
             ViewerBackground.SYSTEM -> MaterialTheme.colorScheme.background
+            null -> Color.Black
         }
 
     val pagerState =
@@ -86,6 +88,13 @@ fun ViewerScreen(
         }
     }
 
+    LaunchedEffect(uiState.exitRequested) {
+        if (uiState.exitRequested) {
+            viewModel.onExitRequestConsumed()
+            onExitClick()
+        }
+    }
+
     Box(
         modifier =
             modifier
@@ -99,18 +108,18 @@ fun ViewerScreen(
                 },
     ) {
         // ── Image pager ──────────────────────────────────────────────────
-        if (uiState.totalCount > 0) {
+        if (uiState.totalCount > 0 && settings != null) {
             HorizontalPager(
                 state = pagerState,
-                beyondViewportPageCount = uiState.settings.preloadCount,
+                beyondViewportPageCount = settings.preloadCount,
                 modifier = Modifier.fillMaxSize(),
                 key = { uiState.imageUris[it] },
             ) { pageIndex ->
                 ImagePage(
                     imageUri = uiState.imageUris[pageIndex],
                     contentDescription = "Image ${pageIndex + 1} of ${uiState.totalCount}",
-                    maxZoom = uiState.settings.maximumZoom,
-                    enableZoom = uiState.settings.enableZoom,
+                    maxZoom = settings.maximumZoom,
+                    enableZoom = settings.enableZoom,
                 )
             }
         }
@@ -123,9 +132,9 @@ fun ViewerScreen(
             TopOverlay(
                 currentIndex = uiState.currentIndex,
                 totalCount = uiState.totalCount,
-                showCounter = uiState.settings.showImageCounter,
+                showCounter = settings?.showImageCounter == true,
                 isSlideshowActive = uiState.isSlideshowActive,
-                enableSlideshow = uiState.settings.enableSlideshow,
+                enableSlideshow = settings?.enableSlideshow == true,
                 onExitClick = onExitClick,
                 onSlideshowToggle = {
                     if (uiState.isSlideshowActive) {
@@ -139,9 +148,9 @@ fun ViewerScreen(
 
         // ── Bottom overlay: metadata bar ─────────────────────────────────
         val showMetadata =
-            uiState.settings.showFileName ||
-                uiState.settings.showResolution ||
-                uiState.settings.showFileSize
+            settings?.showFileName == true ||
+                settings?.showResolution == true ||
+                settings?.showFileSize == true
 
         SlideUpAnimatedVisibility(
             visible = uiState.showUi && showMetadata,
@@ -149,9 +158,9 @@ fun ViewerScreen(
         ) {
             MetadataBar(
                 imageUri = uiState.imageUris.getOrNull(uiState.currentIndex),
-                showFileName = uiState.settings.showFileName,
-                showResolution = uiState.settings.showResolution,
-                showFileSize = uiState.settings.showFileSize,
+                showFileName = settings?.showFileName == true,
+                showResolution = settings?.showResolution == true,
+                showFileSize = settings?.showFileSize == true,
             )
         }
     }
