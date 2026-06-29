@@ -32,6 +32,7 @@ class SettingsRepositoryImpl
     ) : SettingsRepository {
         private val defaults = AppSettings()
 
+        @Suppress("LongMethod", "CyclomaticComplexMethod")
         override fun observeSettings(): Flow<AppSettings> =
             dataStore.data.map { prefs ->
                 AppSettings(

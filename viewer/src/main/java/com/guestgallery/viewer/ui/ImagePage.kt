@@ -39,7 +39,6 @@ import me.saket.telephoto.zoomable.rememberZoomableState
  * @param contentDescription Accessibility description for the image.
  * @param maxZoom         Maximum zoom factor (from settings).
  * @param enableZoom      Whether zoom gestures are enabled.
- * @param enableDoubleTapZoom Whether double-tap toggles zoom.
  */
 @Composable
 fun ImagePage(
@@ -47,7 +46,6 @@ fun ImagePage(
     contentDescription: String,
     maxZoom: Float,
     enableZoom: Boolean,
-    enableDoubleTapZoom: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current

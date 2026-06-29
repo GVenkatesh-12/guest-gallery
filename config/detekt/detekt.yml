@@ -4,12 +4,16 @@ build:
 complexity:
   LongMethod:
     threshold: 60
+    ignoreAnnotated:
+      - "Composable"
   LongParameterList:
     functionThreshold: 8
     constructorThreshold: 10
     ignoreDefaultParameters: true
     ignoreDataClasses: true
     ignoreAnnotatedParameter: []
+    ignoreAnnotated:
+      - "Composable"
   TooManyFunctions:
     thresholdInFiles: 25
     thresholdInClasses: 20
@@ -65,9 +69,6 @@ naming:
   TopLevelPropertyNaming:
     constantPattern: "[A-Z][A-Za-z0-9_]*"
     propertyPattern: "[A-Za-z][A-Za-z0-9_]*"
-
-formatting:
-  active: false
 
 exceptions:
   TooGenericExceptionCaught:

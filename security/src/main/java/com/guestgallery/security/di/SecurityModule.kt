@@ -35,5 +35,7 @@ object SecurityModule {
 
     @Provides
     @Singleton
-    fun provideKioskModeManager(secureWindowManager: SecureWindowManager): KioskModeManager = KioskModeManager(secureWindowManager)
+    fun provideKioskModeManager(secureWindowManager: SecureWindowManager): KioskModeManager {
+        return KioskModeManager(secureWindowManager)
+    }
 }

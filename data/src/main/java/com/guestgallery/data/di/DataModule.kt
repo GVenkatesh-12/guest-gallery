@@ -58,7 +58,9 @@ abstract class DataModule {
             DestroySessionUseCase(sessionRepository)
 
         @Provides
-        fun provideGetSettingsUseCase(settingsRepository: SettingsRepository): GetSettingsUseCase = GetSettingsUseCase(settingsRepository)
+        fun provideGetSettingsUseCase(settingsRepository: SettingsRepository): GetSettingsUseCase {
+            return GetSettingsUseCase(settingsRepository)
+        }
 
         @Provides
         fun provideUpdateSettingUseCase(settingsRepository: SettingsRepository): UpdateSettingUseCase =

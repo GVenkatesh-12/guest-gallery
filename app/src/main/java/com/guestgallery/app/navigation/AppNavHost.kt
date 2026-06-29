@@ -23,7 +23,6 @@ import com.guestgallery.viewer.navigation.viewerScreen
 @Composable
 fun AppNavHost(
     mainViewModel: MainViewModel,
-    onFinish: () -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = if (mainViewModel.appState.value is AppState.Viewing) Routes.VIEWER else Routes.WELCOME,

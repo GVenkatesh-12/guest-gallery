@@ -74,7 +74,6 @@ class MainActivity : ComponentActivity() {
             ) {
                 AppNavHost(
                     mainViewModel = viewModel,
-                    onFinish = { finish() },
                 )
             }
         }

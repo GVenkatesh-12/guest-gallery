@@ -12,13 +12,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 
-// ── Theme Mode ───────────────────────────────────────────────────────────────
-enum class ThemeMode {
-    LIGHT,
-    DARK,
-    SYSTEM,
-}
-
 // ── Composition Locals for extended theme data ───────────────────────────────
 val LocalOledMode = staticCompositionLocalOf { false }
 val LocalDynamicColor = staticCompositionLocalOf { true }

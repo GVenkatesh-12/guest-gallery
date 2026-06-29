@@ -5,6 +5,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private const val MILLIS_PER_SECOND = 1_000L
+
 /**
  * Controls automatic slideshow advancement through pages.
  *
@@ -41,7 +43,7 @@ class SlideshowController(
         job =
             scope.launch {
                 while (true) {
-                    delay(delaySeconds * 1_000L)
+                    delay(delaySeconds * MILLIS_PER_SECOND)
                     val next = currentIndex + 1
                     if (next >= pageCount) {
                         if (loop) {

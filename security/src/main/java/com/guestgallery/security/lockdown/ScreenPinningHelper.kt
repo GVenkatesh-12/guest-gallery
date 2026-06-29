@@ -26,7 +26,7 @@ class ScreenPinningHelper
          * Screen pinning is available on Android 5.0 (API 21) and above;
          * since this app's `minSdk` is 26, it is always supported.
          */
-        fun isSupported(): Boolean = true // minSdk 26 ≥ API 21
+        val isSupported: Boolean = true // minSdk 26 >= API 21
 
         /**
          * Returns `true` if the activity is currently in lock-task (screen-pinning) mode.

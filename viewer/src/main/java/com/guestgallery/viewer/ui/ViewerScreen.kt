@@ -114,7 +114,6 @@ fun ViewerScreen(
                     contentDescription = "Image ${pageIndex + 1} of ${uiState.totalCount}",
                     maxZoom = uiState.settings.maximumZoom,
                     enableZoom = uiState.settings.enableZoom,
-                    enableDoubleTapZoom = uiState.settings.enableDoubleTapZoom,
                 )
             }
         }

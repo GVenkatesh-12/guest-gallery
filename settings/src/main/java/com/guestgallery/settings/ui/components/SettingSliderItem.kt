@@ -86,7 +86,12 @@ fun SettingSliderItem(
             Text(
                 text = valueLabel,
                 style = MaterialTheme.typography.labelLarge,
-                color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
+                color =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
+                    },
             )
         }
 

@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 
+private const val BYTES_PER_UNIT = 1024
+
 /**
  * Returns the display name for a content URI, or null if unavailable.
  */
@@ -39,8 +41,8 @@ fun Long.toHumanReadableSize(): String {
     val units = arrayOf("B", "KB", "MB", "GB")
     var size = this.toDouble()
     var unitIndex = 0
-    while (size >= 1024 && unitIndex < units.lastIndex) {
-        size /= 1024
+    while (size >= BYTES_PER_UNIT && unitIndex < units.lastIndex) {
+        size /= BYTES_PER_UNIT
         unitIndex++
     }
     return if (unitIndex == 0) {

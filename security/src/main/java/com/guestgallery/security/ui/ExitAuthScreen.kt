@@ -37,17 +37,8 @@ import com.guestgallery.core.theme.Dimens
 import com.guestgallery.core.ui.components.FadeAnimatedVisibility
 import com.guestgallery.security.auth.AuthResult
 import com.guestgallery.security.auth.AuthenticationManager
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.launch
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface SecurityEntryPoint {
-    fun authenticationManager(): AuthenticationManager
-}
 
 /** Lock icon size on the exit auth screen. */
 private val LockIconSize = 72.dp
@@ -106,6 +97,7 @@ fun ExitAuthScreen(
     LaunchedEffect(Unit) { visible = true }
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { innerPadding ->
         Surface(
