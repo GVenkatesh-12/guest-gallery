@@ -24,7 +24,6 @@ class SlideshowController(
     private val pageCount: Int,
     private val onAdvance: (nextIndex: Int) -> Unit,
 ) {
-
     private var job: Job? = null
     private var currentIndex: Int = 0
 
@@ -39,23 +38,24 @@ class SlideshowController(
     fun start(startIndex: Int = 0) {
         stop()
         currentIndex = startIndex
-        job = scope.launch {
-            while (true) {
-                delay(delaySeconds * 1_000L)
-                val next = currentIndex + 1
-                if (next >= pageCount) {
-                    if (loop) {
-                        currentIndex = 0
-                        onAdvance(0)
+        job =
+            scope.launch {
+                while (true) {
+                    delay(delaySeconds * 1_000L)
+                    val next = currentIndex + 1
+                    if (next >= pageCount) {
+                        if (loop) {
+                            currentIndex = 0
+                            onAdvance(0)
+                        } else {
+                            break // reached the end — stop
+                        }
                     } else {
-                        break // reached the end — stop
+                        currentIndex = next
+                        onAdvance(next)
                     }
-                } else {
-                    currentIndex = next
-                    onAdvance(next)
                 }
             }
-        }
     }
 
     /** Stop the slideshow, cancelling any pending advancement. */

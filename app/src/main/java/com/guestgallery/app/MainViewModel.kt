@@ -23,88 +23,91 @@ import javax.inject.Inject
  * exit-authentication logic based on user settings.
  */
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    private val createSessionUseCase: CreateSessionUseCase,
-    private val destroySessionUseCase: DestroySessionUseCase,
-    getSettingsUseCase: GetSettingsUseCase,
-) : ViewModel() {
+class MainViewModel
+    @Inject
+    constructor(
+        private val createSessionUseCase: CreateSessionUseCase,
+        private val destroySessionUseCase: DestroySessionUseCase,
+        getSettingsUseCase: GetSettingsUseCase,
+    ) : ViewModel() {
+        /** Observable settings stream, shared across collectors. */
+        val settings: StateFlow<AppSettings> =
+            getSettingsUseCase()
+                .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
 
-    /** Observable settings stream, shared across collectors. */
-    val settings: StateFlow<AppSettings> = getSettingsUseCase()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
+        private val _appState = MutableStateFlow<AppState>(AppState.Welcome)
+        val appState: StateFlow<AppState> = _appState.asStateFlow()
 
-    private val _appState = MutableStateFlow<AppState>(AppState.Welcome)
-    val appState: StateFlow<AppState> = _appState.asStateFlow()
+        /** Whether the host Activity should finish itself. */
+        private val _finishEvent = MutableStateFlow(false)
+        val finishEvent: StateFlow<Boolean> = _finishEvent.asStateFlow()
 
-    /** Whether the host Activity should finish itself. */
-    private val _finishEvent = MutableStateFlow(false)
-    val finishEvent: StateFlow<Boolean> = _finishEvent.asStateFlow()
+        // ── Public API ───────────────────────────────────────────────────────────
 
-    // ── Public API ───────────────────────────────────────────────────────────
-
-    /**
-     * Called when images are received via a share intent.
-     * Creates a new viewing session and transitions to [AppState.Viewing].
-     */
-    fun onImagesReceived(uris: List<String>) {
-        if (uris.isEmpty()) return
-        viewModelScope.launch {
-            createSessionUseCase(uris)
-                .onSuccess { session ->
-                    _appState.value = AppState.Viewing(session)
-                }
-                .onFailure {
-                    // If session creation fails, stay on Welcome
-                    _appState.value = AppState.Welcome
-                }
+        /**
+         * Called when images are received via a share intent.
+         * Creates a new viewing session and transitions to [AppState.Viewing].
+         */
+        fun onImagesReceived(uris: List<String>) {
+            if (uris.isEmpty()) return
+            viewModelScope.launch {
+                createSessionUseCase(uris)
+                    .onSuccess { session ->
+                        _appState.value = AppState.Viewing(session)
+                    }
+                    .onFailure {
+                        // If session creation fails, stay on Welcome
+                        _appState.value = AppState.Welcome
+                    }
+            }
         }
-    }
 
-    /**
-     * Called when the user (device owner) wants to exit.
-     * If authentication is required by settings, transitions to [AppState.ExitAuth];
-     * otherwise destroys the session and finishes immediately.
-     */
-    fun requestExit() {
-        val currentSettings = settings.value
-        val authRequired = currentSettings.requireFingerprintToExit ||
-            currentSettings.requirePinToExit
+        /**
+         * Called when the user (device owner) wants to exit.
+         * If authentication is required by settings, transitions to [AppState.ExitAuth];
+         * otherwise destroys the session and finishes immediately.
+         */
+        fun requestExit() {
+            val currentSettings = settings.value
+            val authRequired =
+                currentSettings.requireFingerprintToExit ||
+                    currentSettings.requirePinToExit
 
-        if (authRequired) {
-            _appState.value = AppState.ExitAuth
-        } else {
+            if (authRequired) {
+                _appState.value = AppState.ExitAuth
+            } else {
+                destroyAndFinish()
+            }
+        }
+
+        /** Called after the device owner successfully authenticates to exit. */
+        fun onAuthSuccess() {
             destroyAndFinish()
         }
-    }
 
-    /** Called after the device owner successfully authenticates to exit. */
-    fun onAuthSuccess() {
-        destroyAndFinish()
-    }
+        /** Called when the owner cancels exit authentication — returns to viewing. */
+        fun onAuthCancel() {
+            val current = _appState.value
+            // Only revert if we're on the auth screen; otherwise keep current state
+            if (current is AppState.ExitAuth) {
+                _appState.value = AppState.Viewing(null)
+            }
+        }
 
-    /** Called when the owner cancels exit authentication — returns to viewing. */
-    fun onAuthCancel() {
-        val current = _appState.value
-        // Only revert if we're on the auth screen; otherwise keep current state
-        if (current is AppState.ExitAuth) {
-            _appState.value = AppState.Viewing(null)
+        /** Resets the finish event after Activity has consumed it. */
+        fun onFinishConsumed() {
+            _finishEvent.value = false
+        }
+
+        // ── Internal ─────────────────────────────────────────────────────────────
+
+        private fun destroyAndFinish() {
+            viewModelScope.launch {
+                destroySessionUseCase()
+                _finishEvent.value = true
+            }
         }
     }
-
-    /** Resets the finish event after Activity has consumed it. */
-    fun onFinishConsumed() {
-        _finishEvent.value = false
-    }
-
-    // ── Internal ─────────────────────────────────────────────────────────────
-
-    private fun destroyAndFinish() {
-        viewModelScope.launch {
-            destroySessionUseCase()
-            _finishEvent.value = true
-        }
-    }
-}
 
 /**
  * Sealed class representing the top-level application state.

@@ -17,28 +17,28 @@ import javax.inject.Singleton
  * session, emitting `null` when no session is active.
  */
 @Singleton
-class SessionRepositoryImpl @Inject constructor() : SessionRepository {
+class SessionRepositoryImpl
+    @Inject
+    constructor() : SessionRepository {
+        private val _activeSession = MutableStateFlow<ViewingSession?>(null)
 
-    private val _activeSession = MutableStateFlow<ViewingSession?>(null)
+        override fun observeActiveSession(): Flow<ViewingSession?> = _activeSession.asStateFlow()
 
-    override fun observeActiveSession(): Flow<ViewingSession?> =
-        _activeSession.asStateFlow()
+        override suspend fun createSession(imageUris: List<String>): ViewingSession {
+            val session =
+                ViewingSession(
+                    id = UUID.randomUUID().toString(),
+                    imageUris = imageUris,
+                    createdAt = System.currentTimeMillis(),
+                    isActive = true,
+                )
+            _activeSession.value = session
+            return session
+        }
 
-    override suspend fun createSession(imageUris: List<String>): ViewingSession {
-        val session = ViewingSession(
-            id = UUID.randomUUID().toString(),
-            imageUris = imageUris,
-            createdAt = System.currentTimeMillis(),
-            isActive = true,
-        )
-        _activeSession.value = session
-        return session
+        override suspend fun destroySession() {
+            _activeSession.value = null
+        }
+
+        override suspend fun hasActiveSession(): Boolean = _activeSession.value != null
     }
-
-    override suspend fun destroySession() {
-        _activeSession.value = null
-    }
-
-    override suspend fun hasActiveSession(): Boolean =
-        _activeSession.value != null
-}

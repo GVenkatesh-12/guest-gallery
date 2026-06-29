@@ -53,26 +53,27 @@ private data class GuideStep(
 )
 
 /** Steps for the screen-pinning setup guide. */
-private val guideSteps = listOf(
-    GuideStep(
-        number = 1,
-        icon = Icons.Outlined.Security,
-        title = "Open Screen Pinning Settings",
-        description = "Go to Settings → Security → Screen pinning (or App pinning).",
-    ),
-    GuideStep(
-        number = 2,
-        icon = Icons.Outlined.Lock,
-        title = "Turn On Screen Pinning",
-        description = "Toggle the Screen pinning switch to ON.",
-    ),
-    GuideStep(
-        number = 3,
-        icon = Icons.Outlined.PhoneAndroid,
-        title = "Pin the App",
-        description = "Return here and tap 'Pin App' to lock the gallery.",
-    ),
-)
+private val guideSteps =
+    listOf(
+        GuideStep(
+            number = 1,
+            icon = Icons.Outlined.Security,
+            title = "Open Screen Pinning Settings",
+            description = "Go to Settings → Security → Screen pinning (or App pinning).",
+        ),
+        GuideStep(
+            number = 2,
+            icon = Icons.Outlined.Lock,
+            title = "Turn On Screen Pinning",
+            description = "Toggle the Screen pinning switch to ON.",
+        ),
+        GuideStep(
+            number = 3,
+            icon = Icons.Outlined.PhoneAndroid,
+            title = "Pin the App",
+            description = "Return here and tap 'Pin App' to lock the gallery.",
+        ),
+    )
 
 /** Staggered delay (ms) between step reveal animations. */
 private const val STEP_STAGGER_DELAY = 250L
@@ -118,8 +119,9 @@ fun ScreenPinningGuideDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMd)) {
                 Text(
-                    text = "Screen pinning locks the device to this app so " +
-                        "guests can only view the images you've shared.",
+                    text =
+                        "Screen pinning locks the device to this app so " +
+                            "guests can only view the images you've shared.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -129,9 +131,10 @@ fun ScreenPinningGuideDialog(
                 guideSteps.forEachIndexed { index, step ->
                     AnimatedVisibility(
                         visible = index < revealedSteps,
-                        enter = expandVertically(
-                            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                        ) + fadeIn(animationSpec = tween(durationMillis = 300)),
+                        enter =
+                            expandVertically(
+                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                            ) + fadeIn(animationSpec = tween(durationMillis = 300)),
                     ) {
                         StepRow(step = step)
                     }
@@ -158,17 +161,19 @@ private fun StepRow(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = Dimens.SpacingXs),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = Dimens.SpacingXs),
         verticalAlignment = Alignment.Top,
     ) {
         // Numbered circle indicator
         Box(
-            modifier = Modifier
-                .size(Dimens.IconLg)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+            modifier =
+                Modifier
+                    .size(Dimens.IconLg)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center,
         ) {
             Text(

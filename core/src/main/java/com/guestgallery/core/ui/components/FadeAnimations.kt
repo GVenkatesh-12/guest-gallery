@@ -43,14 +43,16 @@ fun ScaleFadeAnimatedVisibility(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = scaleIn(
-            initialScale = 0.85f,
-            animationSpec = tween(durationMs),
-        ) + fadeIn(animationSpec = tween(durationMs)),
-        exit = scaleOut(
-            targetScale = 0.85f,
-            animationSpec = tween(durationMs),
-        ) + fadeOut(animationSpec = tween(durationMs)),
+        enter =
+            scaleIn(
+                initialScale = 0.85f,
+                animationSpec = tween(durationMs),
+            ) + fadeIn(animationSpec = tween(durationMs)),
+        exit =
+            scaleOut(
+                targetScale = 0.85f,
+                animationSpec = tween(durationMs),
+            ) + fadeOut(animationSpec = tween(durationMs)),
     ) {
         content()
     }
@@ -67,14 +69,16 @@ fun SlideUpAnimatedVisibility(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = slideInVertically(
-            initialOffsetY = { it / 3 },
-            animationSpec = tween(durationMs),
-        ) + fadeIn(animationSpec = tween(durationMs)),
-        exit = slideOutVertically(
-            targetOffsetY = { it / 3 },
-            animationSpec = tween(durationMs),
-        ) + fadeOut(animationSpec = tween(durationMs)),
+        enter =
+            slideInVertically(
+                initialOffsetY = { it / 3 },
+                animationSpec = tween(durationMs),
+            ) + fadeIn(animationSpec = tween(durationMs)),
+        exit =
+            slideOutVertically(
+                targetOffsetY = { it / 3 },
+                animationSpec = tween(durationMs),
+            ) + fadeOut(animationSpec = tween(durationMs)),
     ) {
         content()
     }

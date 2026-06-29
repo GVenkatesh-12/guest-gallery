@@ -49,58 +49,63 @@ fun AnimatedToggle(
 
     val thumbOffset by animateFloatAsState(
         targetValue = if (checked) maxOffset else 0f,
-        animationSpec = spring(
-            dampingRatio = 0.6f,
-            stiffness = 400f,
-        ),
+        animationSpec =
+            spring(
+                dampingRatio = 0.6f,
+                stiffness = 400f,
+            ),
         label = "thumb_offset",
     )
 
     val trackColor by animateColorAsState(
-        targetValue = when {
-            !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
-            checked -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.surfaceVariant
-        },
+        targetValue =
+            when {
+                !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
+                checked -> MaterialTheme.colorScheme.primary
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            },
         animationSpec = tween(durationMillis = 200),
         label = "track_color",
     )
 
     val thumbColor by animateColorAsState(
-        targetValue = when {
-            !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            checked -> MaterialTheme.colorScheme.onPrimary
-            else -> MaterialTheme.colorScheme.outline
-        },
+        targetValue =
+            when {
+                !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                checked -> MaterialTheme.colorScheme.onPrimary
+                else -> MaterialTheme.colorScheme.outline
+            },
         animationSpec = tween(durationMillis = 200),
         label = "thumb_color",
     )
 
     Box(
-        modifier = modifier
-            .width(trackWidth)
-            .height(trackHeight)
-            .clip(CircleShape)
-            .background(trackColor)
-            .clickable(
-                enabled = enabled,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) { onCheckedChange(!checked) },
+        modifier =
+            modifier
+                .width(trackWidth)
+                .height(trackHeight)
+                .clip(CircleShape)
+                .background(trackColor)
+                .clickable(
+                    enabled = enabled,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { onCheckedChange(!checked) },
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(
-            modifier = Modifier
-                .padding(horizontal = thumbPadding)
-                .offset { IntOffset(thumbOffset.roundToInt(), 0) }
-                .size(thumbSize)
-                .shadow(
-                    elevation = if (checked) 4.dp else 2.dp,
-                    shape = CircleShape,
-                    ambientColor = Color.Black.copy(alpha = 0.1f),
-                )
-                .clip(CircleShape)
-                .background(thumbColor),
+            modifier =
+                Modifier
+                    .padding(horizontal = thumbPadding)
+                    .offset { IntOffset(thumbOffset.roundToInt(), 0) }
+                    .size(thumbSize)
+                    .shadow(
+                        elevation = if (checked) 4.dp else 2.dp,
+                        shape = CircleShape,
+                        ambientColor = Color.Black.copy(alpha = 0.1f),
+                    )
+                    .clip(CircleShape)
+                    .background(thumbColor),
         )
     }
 }

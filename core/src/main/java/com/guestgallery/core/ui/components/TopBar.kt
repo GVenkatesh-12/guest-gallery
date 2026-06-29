@@ -44,8 +44,9 @@ fun GuestGalleryTopBar(
             }
         },
         actions = { actions() },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = containerColor,
-        ),
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = containerColor,
+            ),
     )
 }

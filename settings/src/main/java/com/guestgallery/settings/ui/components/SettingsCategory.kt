@@ -37,10 +37,11 @@ fun SettingsCategory(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggle() }
-                .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggle() }
+                    .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(

@@ -9,8 +9,6 @@ import androidx.compose.material.icons.rounded.FormatListNumbered
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Loop
 import androidx.compose.material.icons.rounded.PhotoSizeSelectActual
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RotateRight
 import androidx.compose.material.icons.rounded.ScreenLockPortrait
 import androidx.compose.material.icons.rounded.Slideshow

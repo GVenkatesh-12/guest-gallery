@@ -21,25 +21,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object SecurityModule {
+    @Provides
+    @Singleton
+    fun provideAuthenticationManager(): AuthenticationManager = AuthenticationManager()
 
     @Provides
     @Singleton
-    fun provideAuthenticationManager(): AuthenticationManager =
-        AuthenticationManager()
+    fun provideSecureWindowManager(): SecureWindowManager = SecureWindowManager()
 
     @Provides
     @Singleton
-    fun provideSecureWindowManager(): SecureWindowManager =
-        SecureWindowManager()
+    fun provideScreenPinningHelper(): ScreenPinningHelper = ScreenPinningHelper()
 
     @Provides
     @Singleton
-    fun provideScreenPinningHelper(): ScreenPinningHelper =
-        ScreenPinningHelper()
-
-    @Provides
-    @Singleton
-    fun provideKioskModeManager(
-        secureWindowManager: SecureWindowManager,
-    ): KioskModeManager = KioskModeManager(secureWindowManager)
+    fun provideKioskModeManager(secureWindowManager: SecureWindowManager): KioskModeManager = KioskModeManager(secureWindowManager)
 }

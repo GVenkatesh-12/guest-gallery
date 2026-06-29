@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Accessibility
-import androidx.compose.material.icons.rounded.Cached
-import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PrivacyTip
-import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Visibility
@@ -39,7 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guestgallery.core.theme.Dimens
@@ -82,9 +77,10 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
         ) {
             // ── Security Category ────────────────────────────────────────────
             item {
@@ -197,10 +193,11 @@ fun SettingsScreen(
             // ── Maintenance Tools ────────────────────────────────────────────
             item {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dimens.PaddingScreen)
-                        .navigationBarsPadding(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.PaddingScreen)
+                            .navigationBarsPadding(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(Dimens.SpacingSm),
                 ) {
@@ -214,9 +211,10 @@ fun SettingsScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
+                        colors =
+                            ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                     ) {
                         Text("Clear Cache Files")
                     }
@@ -229,9 +227,10 @@ fun SettingsScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error,
+                            ),
                     ) {
                         Text("Reset All to Defaults")
                     }

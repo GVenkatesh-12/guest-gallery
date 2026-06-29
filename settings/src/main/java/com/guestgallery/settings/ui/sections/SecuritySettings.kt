@@ -15,7 +15,6 @@ import androidx.compose.material.icons.rounded.ScreenLockPortrait
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.ScreenShare
 import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

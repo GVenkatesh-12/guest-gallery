@@ -28,17 +28,25 @@ fun SettingToggleItem(
     enabled: Boolean = true,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled) { onCheckedChange(!checked) }
-            .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { onCheckedChange(!checked) }
+                .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                tint =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.38f,
+                        )
+                    },
             )
             Spacer(modifier = Modifier.width(Dimens.SpacingLg))
         }
@@ -53,7 +61,14 @@ fun SettingToggleItem(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                    color =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f,
+                            )
+                        },
                 )
             }
         }

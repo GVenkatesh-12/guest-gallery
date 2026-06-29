@@ -15,11 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PhotoLibrary
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -48,18 +46,20 @@ fun WelcomeScreen(
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                        MaterialTheme.colorScheme.background
-                    )
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors =
+                            listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                MaterialTheme.colorScheme.background,
+                            ),
+                    ),
                 )
-            )
-            .padding(horizontal = Dimens.PaddingScreen)
-            .verticalScroll(scrollState),
+                .padding(horizontal = Dimens.PaddingScreen)
+                .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -100,9 +100,10 @@ fun WelcomeScreen(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = Dimens.SpacingMd),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = Dimens.SpacingMd),
         )
 
         InstructionCard(
@@ -182,9 +183,10 @@ private fun InstructionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            ),
         shape = MaterialTheme.shapes.medium,
     ) {
         Row(
@@ -192,12 +194,13 @@ private fun InstructionCard(
             verticalAlignment = Alignment.Top,
         ) {
             Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = MaterialTheme.shapes.extraSmall,
-                    ),
+                modifier =
+                    Modifier
+                        .size(24.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MaterialTheme.shapes.extraSmall,
+                        ),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(

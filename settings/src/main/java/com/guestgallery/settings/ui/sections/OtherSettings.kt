@@ -10,7 +10,6 @@ import androidx.compose.material.icons.rounded.HistoryToggleOff
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsAccessibility
-import androidx.compose.material.icons.rounded.SpeakerPhone
 import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

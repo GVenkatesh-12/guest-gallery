@@ -27,12 +27,13 @@ fun GlassCard(
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .blur(blurRadius)
-            .background(backgroundColor)
-            .background(borderColor)
-            .padding(Dimens.PaddingCard),
+        modifier =
+            modifier
+                .clip(MaterialTheme.shapes.large)
+                .blur(blurRadius)
+                .background(backgroundColor)
+                .background(borderColor)
+                .padding(Dimens.PaddingCard),
         content = content,
     )
 }
@@ -48,10 +49,11 @@ fun GlassSurface(
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .background(backgroundColor)
-            .padding(Dimens.PaddingCard),
+        modifier =
+            modifier
+                .clip(MaterialTheme.shapes.large)
+                .background(backgroundColor)
+                .padding(Dimens.PaddingCard),
         content = content,
     )
 }

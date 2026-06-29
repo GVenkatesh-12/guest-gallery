@@ -41,90 +41,93 @@ data class ViewerUiState(
  * and page position tracking.
  */
 @HiltViewModel
-class ViewerViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository,
-    private val settingsRepository: SettingsRepository,
-) : ViewModel() {
+class ViewerViewModel
+    @Inject
+    constructor(
+        private val sessionRepository: SessionRepository,
+        private val settingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        /** Internal mutable state that is NOT derived from repositories. */
+        private val _localState = MutableStateFlow(LocalState())
 
-    /** Internal mutable state that is NOT derived from repositories. */
-    private val _localState = MutableStateFlow(LocalState())
+        private var slideshowController: SlideshowController? = null
 
-    private var slideshowController: SlideshowController? = null
+        /** Exposed UI state combining repository data with local view state. */
+        val uiState: StateFlow<ViewerUiState> =
+            combine(
+                sessionRepository.observeActiveSession(),
+                settingsRepository.observeSettings(),
+                _localState,
+            ) { session, settings, local ->
+                ViewerUiState(
+                    imageUris = session?.imageUris.orEmpty(),
+                    currentIndex = local.currentIndex,
+                    totalCount = session?.imageUris?.size ?: 0,
+                    settings = settings,
+                    showUi = local.showUi,
+                    isSlideshowActive = local.isSlideshowActive,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = ViewerUiState(),
+            )
 
-    /** Exposed UI state combining repository data with local view state. */
-    val uiState: StateFlow<ViewerUiState> = combine(
-        sessionRepository.observeActiveSession(),
-        settingsRepository.observeSettings(),
-        _localState,
-    ) { session, settings, local ->
-        ViewerUiState(
-            imageUris = session?.imageUris.orEmpty(),
-            currentIndex = local.currentIndex,
-            totalCount = session?.imageUris?.size ?: 0,
-            settings = settings,
-            showUi = local.showUi,
-            isSlideshowActive = local.isSlideshowActive,
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = ViewerUiState(),
-    )
+        // ── Public actions ───────────────────────────────────────────────────────
 
-    // ── Public actions ───────────────────────────────────────────────────────
-
-    /** Toggle overlay UI visibility (counter, metadata bar). */
-    fun toggleUiVisibility() {
-        _localState.update { it.copy(showUi = !it.showUi) }
-    }
-
-    /** Update the current page position (e.g. after a user swipe). */
-    fun setCurrentPage(index: Int) {
-        _localState.update { it.copy(currentIndex = index) }
-        slideshowController?.updateCurrentIndex(index)
-    }
-
-    /** Start the slideshow auto-advance. */
-    fun startSlideshow() {
-        val state = uiState.value
-        if (state.totalCount <= 1) return
-
-        slideshowController?.stop()
-        slideshowController = SlideshowController(
-            scope = viewModelScope,
-            delaySeconds = state.settings.slideshowSpeedSeconds,
-            loop = state.settings.loopSlideshow,
-            pageCount = state.totalCount,
-            onAdvance = { nextIndex ->
-                _localState.update {
-                    it.copy(currentIndex = nextIndex, isSlideshowActive = true)
-                }
-            },
-        ).also { controller ->
-            controller.start(startIndex = state.currentIndex)
+        /** Toggle overlay UI visibility (counter, metadata bar). */
+        fun toggleUiVisibility() {
+            _localState.update { it.copy(showUi = !it.showUi) }
         }
 
-        _localState.update { it.copy(isSlideshowActive = true, showUi = false) }
+        /** Update the current page position (e.g. after a user swipe). */
+        fun setCurrentPage(index: Int) {
+            _localState.update { it.copy(currentIndex = index) }
+            slideshowController?.updateCurrentIndex(index)
+        }
+
+        /** Start the slideshow auto-advance. */
+        fun startSlideshow() {
+            val state = uiState.value
+            if (state.totalCount <= 1) return
+
+            slideshowController?.stop()
+            slideshowController =
+                SlideshowController(
+                    scope = viewModelScope,
+                    delaySeconds = state.settings.slideshowSpeedSeconds,
+                    loop = state.settings.loopSlideshow,
+                    pageCount = state.totalCount,
+                    onAdvance = { nextIndex ->
+                        _localState.update {
+                            it.copy(currentIndex = nextIndex, isSlideshowActive = true)
+                        }
+                    },
+                ).also { controller ->
+                    controller.start(startIndex = state.currentIndex)
+                }
+
+            _localState.update { it.copy(isSlideshowActive = true, showUi = false) }
+        }
+
+        /** Stop the slideshow auto-advance. */
+        fun stopSlideshow() {
+            slideshowController?.stop()
+            slideshowController = null
+            _localState.update { it.copy(isSlideshowActive = false) }
+        }
+
+        override fun onCleared() {
+            super.onCleared()
+            slideshowController?.stop()
+        }
+
+        // ── Internal ─────────────────────────────────────────────────────────────
+
+        /** Local view state that doesn't come from repository flows. */
+        private data class LocalState(
+            val currentIndex: Int = 0,
+            val showUi: Boolean = true,
+            val isSlideshowActive: Boolean = false,
+        )
     }
-
-    /** Stop the slideshow auto-advance. */
-    fun stopSlideshow() {
-        slideshowController?.stop()
-        slideshowController = null
-        _localState.update { it.copy(isSlideshowActive = false) }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        slideshowController?.stop()
-    }
-
-    // ── Internal ─────────────────────────────────────────────────────────────
-
-    /** Local view state that doesn't come from repository flows. */
-    private data class LocalState(
-        val currentIndex: Int = 0,
-        val showUi: Boolean = true,
-        val isSlideshowActive: Boolean = false,
-    )
-}

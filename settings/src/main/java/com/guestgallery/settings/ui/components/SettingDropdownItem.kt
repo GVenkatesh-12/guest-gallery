@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -42,16 +41,24 @@ fun SettingDropdownItem(
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                tint =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.38f,
+                        )
+                    },
             )
             Spacer(modifier = Modifier.width(Dimens.SpacingLg))
         }
@@ -66,7 +73,14 @@ fun SettingDropdownItem(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                    color =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f,
+                            )
+                        },
                 )
             }
         }
@@ -85,9 +99,10 @@ fun SettingDropdownItem(
                     enabled = enabled,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                    modifier = Modifier
-                        .width(140.dp)
-                        .menuAnchor(type = MenuAnchorType.PrimaryNotEditable),
+                    modifier =
+                        Modifier
+                            .width(140.dp)
+                            .menuAnchor(type = MenuAnchorType.PrimaryNotEditable),
                     singleLine = true,
                 )
 
@@ -109,4 +124,3 @@ fun SettingDropdownItem(
         }
     }
 }
-

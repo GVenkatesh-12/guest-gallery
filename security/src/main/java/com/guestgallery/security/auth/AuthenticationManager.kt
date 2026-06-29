@@ -29,46 +29,52 @@ sealed class AuthResult {
  * The result is delivered through the [onResult] callback on the main thread.
  */
 @Singleton
-class AuthenticationManager @Inject constructor() {
+class AuthenticationManager
+    @Inject
+    constructor() {
+        /**
+         * Shows the biometric authentication prompt.
+         *
+         * @param activity   The host [FragmentActivity] (required by [BiometricPrompt]).
+         * @param title      Title displayed in the prompt dialog.
+         * @param subtitle   Subtitle displayed beneath the title.
+         * @param onResult   Callback invoked with the [AuthResult] on completion.
+         */
+        fun authenticate(
+            activity: FragmentActivity,
+            title: String,
+            subtitle: String,
+            onResult: (AuthResult) -> Unit,
+        ) {
+            val executor = ContextCompat.getMainExecutor(activity)
 
-    /**
-     * Shows the biometric authentication prompt.
-     *
-     * @param activity   The host [FragmentActivity] (required by [BiometricPrompt]).
-     * @param title      Title displayed in the prompt dialog.
-     * @param subtitle   Subtitle displayed beneath the title.
-     * @param onResult   Callback invoked with the [AuthResult] on completion.
-     */
-    fun authenticate(
-        activity: FragmentActivity,
-        title: String,
-        subtitle: String,
-        onResult: (AuthResult) -> Unit,
-    ) {
-        val executor = ContextCompat.getMainExecutor(activity)
+            val callback =
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        onResult(AuthResult.Success)
+                    }
 
-        val callback = object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                onResult(AuthResult.Success)
-            }
+                    override fun onAuthenticationFailed() {
+                        onResult(AuthResult.Failed)
+                    }
 
-            override fun onAuthenticationFailed() {
-                onResult(AuthResult.Failed)
-            }
+                    override fun onAuthenticationError(
+                        errorCode: Int,
+                        errString: CharSequence,
+                    ) {
+                        onResult(AuthResult.Error(errString.toString()))
+                    }
+                }
 
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                onResult(AuthResult.Error(errString.toString()))
-            }
+            val prompt = BiometricPrompt(activity, executor, callback)
+
+            val promptInfo =
+                BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(title)
+                    .setSubtitle(subtitle)
+                    .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+                    .build()
+
+            prompt.authenticate(promptInfo)
         }
-
-        val prompt = BiometricPrompt(activity, executor, callback)
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
-            .build()
-
-        prompt.authenticate(promptInfo)
     }
-}

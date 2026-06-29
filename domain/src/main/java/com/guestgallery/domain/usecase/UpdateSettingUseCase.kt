@@ -9,23 +9,38 @@ import com.guestgallery.domain.repository.SettingsRepository
 class UpdateSettingUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
-    suspend fun updateBoolean(key: String, value: Boolean) {
+    suspend fun updateBoolean(
+        key: String,
+        value: Boolean,
+    ) {
         settingsRepository.updateBooleanSetting(key, value)
     }
 
-    suspend fun updateInt(key: String, value: Int) {
+    suspend fun updateInt(
+        key: String,
+        value: Int,
+    ) {
         settingsRepository.updateIntSetting(key, value)
     }
 
-    suspend fun updateFloat(key: String, value: Float) {
+    suspend fun updateFloat(
+        key: String,
+        value: Float,
+    ) {
         settingsRepository.updateFloatSetting(key, value)
     }
 
-    suspend fun updateString(key: String, value: String) {
+    suspend fun updateString(
+        key: String,
+        value: String,
+    ) {
         settingsRepository.updateStringSetting(key, value)
     }
 
-    suspend fun updateLong(key: String, value: Long) {
+    suspend fun updateLong(
+        key: String,
+        value: Long,
+    ) {
         settingsRepository.updateLongSetting(key, value)
     }
 

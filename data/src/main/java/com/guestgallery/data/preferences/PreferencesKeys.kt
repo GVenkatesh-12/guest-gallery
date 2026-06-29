@@ -13,7 +13,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
  * correspond to the camelCase field names in [AppSettings].
  */
 object PreferencesKeys {
-
     // ── Security ─────────────────────────────────────────────────────────────
     val ENABLE_SCREEN_PINNING_REMINDER = booleanPreferencesKey("enable_screen_pinning_reminder")
     val AUTO_LOCK_ON_EXIT = booleanPreferencesKey("auto_lock_on_exit")

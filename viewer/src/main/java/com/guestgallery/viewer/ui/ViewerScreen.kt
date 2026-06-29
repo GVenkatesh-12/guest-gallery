@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -61,17 +61,19 @@ fun ViewerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val backgroundColor = when (uiState.settings.viewerBackground) {
-        ViewerBackground.BLACK -> Color.Black
-        ViewerBackground.DARK_GRAY -> Color(0xFF1A1A1A)
-        ViewerBackground.GRAY -> Color(0xFF2E2E2E)
-        ViewerBackground.SYSTEM -> MaterialTheme.colorScheme.background
-    }
+    val backgroundColor =
+        when (uiState.settings.viewerBackground) {
+            ViewerBackground.BLACK -> Color.Black
+            ViewerBackground.DARK_GRAY -> Color(0xFF1A1A1A)
+            ViewerBackground.GRAY -> Color(0xFF2E2E2E)
+            ViewerBackground.SYSTEM -> MaterialTheme.colorScheme.background
+        }
 
-    val pagerState = rememberPagerState(
-        initialPage = uiState.currentIndex,
-        pageCount = { uiState.totalCount },
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = uiState.currentIndex,
+            pageCount = { uiState.totalCount },
+        )
 
     // Sync pager state → ViewModel when user swipes
     LaunchedEffect(pagerState) {
@@ -88,15 +90,16 @@ fun ViewerScreen(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {
-                viewModel.toggleUiVisibility()
-            },
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {
+                    viewModel.toggleUiVisibility()
+                },
     ) {
         // ── Image pager ──────────────────────────────────────────────────
         if (uiState.totalCount > 0) {
@@ -140,9 +143,10 @@ fun ViewerScreen(
         }
 
         // ── Bottom overlay: metadata bar ─────────────────────────────────
-        val showMetadata = uiState.settings.showFileName ||
-            uiState.settings.showResolution ||
-            uiState.settings.showFileSize
+        val showMetadata =
+            uiState.settings.showFileName ||
+                uiState.settings.showResolution ||
+                uiState.settings.showFileSize
 
         SlideUpAnimatedVisibility(
             visible = uiState.showUi && showMetadata,
@@ -175,11 +179,12 @@ private fun TopOverlay(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Black.copy(alpha = 0.4f))
-            .statusBarsPadding()
-            .padding(horizontal = Dimens.SpacingXs, vertical = Dimens.SpacingXs),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.4f))
+                .statusBarsPadding()
+                .padding(horizontal = Dimens.SpacingXs, vertical = Dimens.SpacingXs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onExitClick) {
@@ -196,9 +201,10 @@ private fun TopOverlay(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
                 color = Color.White,
-                modifier = Modifier
-                    .weight(1f)
-                    .animateContentSize(),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .animateContentSize(),
             )
         } else {
             Box(modifier = Modifier.weight(1f))
@@ -207,16 +213,18 @@ private fun TopOverlay(
         if (enableSlideshow) {
             IconButton(onClick = onSlideshowToggle) {
                 Icon(
-                    imageVector = if (isSlideshowActive) {
-                        Icons.Rounded.Pause
-                    } else {
-                        Icons.Rounded.PlayArrow
-                    },
-                    contentDescription = if (isSlideshowActive) {
-                        "Stop slideshow"
-                    } else {
-                        "Start slideshow"
-                    },
+                    imageVector =
+                        if (isSlideshowActive) {
+                            Icons.Rounded.Pause
+                        } else {
+                            Icons.Rounded.PlayArrow
+                        },
+                    contentDescription =
+                        if (isSlideshowActive) {
+                            "Stop slideshow"
+                        } else {
+                            "Start slideshow"
+                        },
                     tint = Color.White,
                 )
             }
@@ -243,11 +251,12 @@ private fun MetadataBar(
     if (imageUri == null) return
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Black.copy(alpha = 0.5f))
-            .navigationBarsPadding()
-            .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.SpacingMd),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .navigationBarsPadding()
+                .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.SpacingMd),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         if (showFileName) {

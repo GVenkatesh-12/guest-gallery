@@ -27,7 +27,6 @@ data class AppSettings(
     val hideRecentAppsPreview: Boolean = true,
     val blankScreenOnAppSwitch: Boolean = true,
     val secureWindowFlag: Boolean = true,
-
     // ── Viewer ───────────────────────────────────────────────────────────────
     val showImageCounter: Boolean = true,
     val showFileName: Boolean = false,
@@ -45,7 +44,6 @@ data class AppSettings(
     val viewerBackground: ViewerBackground = BLACK,
     val edgePadding: Int = 0,
     val transitionStyle: TransitionStyle = CROSSFADE,
-
     // ── Appearance ───────────────────────────────────────────────────────────
     val themeMode: String = "system",
     val dynamicColors: Boolean = true,
@@ -58,7 +56,6 @@ data class AppSettings(
     val glassEffect: Boolean = false,
     val blurEffects: Boolean = true,
     val roundedButtons: Boolean = true,
-
     // ── Privacy ──────────────────────────────────────────────────────────────
     val deleteSessionHistory: Boolean = true,
     val neverStoreSharedImages: Boolean = true,
@@ -67,7 +64,6 @@ data class AppSettings(
     val autoDeleteTempFiles: Boolean = true,
     val incognitoMode: Boolean = false,
     val anonymousCrashReports: Boolean = false,
-
     // ── Performance ──────────────────────────────────────────────────────────
     val imageCacheSizeMb: Int = 128,
     val preloadCount: Int = 2,
@@ -76,7 +72,6 @@ data class AppSettings(
     val animationQuality: String = "high",
     val memorySaver: Boolean = false,
     val batterySaver: Boolean = false,
-
     // ── Accessibility ────────────────────────────────────────────────────────
     val largeText: Boolean = false,
     val highContrast: Boolean = false,

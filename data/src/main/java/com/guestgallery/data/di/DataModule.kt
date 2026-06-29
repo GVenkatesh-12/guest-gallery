@@ -28,23 +28,17 @@ private val Context.settingsDataStore: DataStore<Preferences> by preferencesData
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
-
     // ── Repository bindings ──────────────────────────────────────────────────
 
     @Binds
     @Singleton
-    abstract fun bindSettingsRepository(
-        impl: SettingsRepositoryImpl,
-    ): SettingsRepository
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
 
     @Binds
     @Singleton
-    abstract fun bindSessionRepository(
-        impl: SessionRepositoryImpl,
-    ): SessionRepository
+    abstract fun bindSessionRepository(impl: SessionRepositoryImpl): SessionRepository
 
     companion object {
-
         // ── DataStore provider ───────────────────────────────────────────────
 
         @Provides
@@ -56,23 +50,18 @@ abstract class DataModule {
         // ── Use case providers ───────────────────────────────────────────────
 
         @Provides
-        fun provideCreateSessionUseCase(
-            sessionRepository: SessionRepository,
-        ): CreateSessionUseCase = CreateSessionUseCase(sessionRepository)
+        fun provideCreateSessionUseCase(sessionRepository: SessionRepository): CreateSessionUseCase =
+            CreateSessionUseCase(sessionRepository)
 
         @Provides
-        fun provideDestroySessionUseCase(
-            sessionRepository: SessionRepository,
-        ): DestroySessionUseCase = DestroySessionUseCase(sessionRepository)
+        fun provideDestroySessionUseCase(sessionRepository: SessionRepository): DestroySessionUseCase =
+            DestroySessionUseCase(sessionRepository)
 
         @Provides
-        fun provideGetSettingsUseCase(
-            settingsRepository: SettingsRepository,
-        ): GetSettingsUseCase = GetSettingsUseCase(settingsRepository)
+        fun provideGetSettingsUseCase(settingsRepository: SettingsRepository): GetSettingsUseCase = GetSettingsUseCase(settingsRepository)
 
         @Provides
-        fun provideUpdateSettingUseCase(
-            settingsRepository: SettingsRepository,
-        ): UpdateSettingUseCase = UpdateSettingUseCase(settingsRepository)
+        fun provideUpdateSettingUseCase(settingsRepository: SettingsRepository): UpdateSettingUseCase =
+            UpdateSettingUseCase(settingsRepository)
     }
 }

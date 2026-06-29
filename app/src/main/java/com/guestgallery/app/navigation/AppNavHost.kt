@@ -62,25 +62,25 @@ fun AppNavHost(
         composable(route = Routes.WELCOME) {
             WelcomeScreen(
                 onOpenSettings = { navController.navigateToSettings() },
-                onAboutClick = { navController.navigate(Routes.ABOUT) }
+                onAboutClick = { navController.navigate(Routes.ABOUT) },
             )
         }
 
         // Viewer route
         viewerScreen(
             onSettingsClick = { navController.navigateToSettings() },
-            onExitClick = { mainViewModel.requestExit() }
+            onExitClick = { mainViewModel.requestExit() },
         )
 
         // Settings route
         settingsScreen(
-            onBackClick = { navController.popBackStack() }
+            onBackClick = { navController.popBackStack() },
         )
 
         // About route
         composable(route = Routes.ABOUT) {
             AboutScreen(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
             )
         }
 
@@ -92,7 +92,7 @@ fun AppNavHost(
                 },
                 onCancelled = {
                     mainViewModel.onAuthCancel()
-                }
+                },
             )
         }
     }

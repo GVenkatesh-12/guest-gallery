@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RoundedCorner
 import androidx.compose.material.icons.rounded.Speed

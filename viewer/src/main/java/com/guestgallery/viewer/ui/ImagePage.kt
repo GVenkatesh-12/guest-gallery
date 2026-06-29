@@ -24,10 +24,10 @@ import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.guestgallery.core.theme.Dimens
+import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
-import me.saket.telephoto.zoomable.ZoomSpec
 
 /**
  * Single image page displayed within the [ViewerScreen] pager.
@@ -52,20 +52,23 @@ fun ImagePage(
 ) {
     val context = LocalContext.current
 
-    val zoomableState = rememberZoomableState(
-        zoomSpec = remember(maxZoom) {
-            ZoomSpec(maxZoomFactor = maxZoom)
-        },
-    )
+    val zoomableState =
+        rememberZoomableState(
+            zoomSpec =
+                remember(maxZoom) {
+                    ZoomSpec(maxZoomFactor = maxZoom)
+                },
+        )
 
     val imageState = rememberZoomableImageState(zoomableState)
 
-    val model = remember(imageUri) {
-        ImageRequest.Builder(context)
-            .data(imageUri)
-            .crossfade(true)
-            .build()
-    }
+    val model =
+        remember(imageUri) {
+            ImageRequest.Builder(context)
+                .data(imageUri)
+                .crossfade(true)
+                .build()
+        }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -82,9 +85,10 @@ fun ImagePage(
         } else {
             // Fallback without zoom — still uses ZoomableAsyncImage but
             // zoom is effectively disabled via maxZoom = 1f
-            val noZoomState = rememberZoomableState(
-                zoomSpec = remember { ZoomSpec(maxZoomFactor = 1f) },
-            )
+            val noZoomState =
+                rememberZoomableState(
+                    zoomSpec = remember { ZoomSpec(maxZoomFactor = 1f) },
+                )
             val noZoomImageState = rememberZoomableImageState(noZoomState)
 
             ZoomableAsyncImage(

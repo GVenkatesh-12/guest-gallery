@@ -30,19 +30,27 @@ fun SettingSliderItem(
     enabled: Boolean = true,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.PaddingScreen, vertical = Dimens.PaddingListItem),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             if (icon != null) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                    tint =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f,
+                            )
+                        },
                 )
                 Spacer(modifier = Modifier.width(Dimens.SpacingLg))
             }
@@ -51,13 +59,25 @@ fun SettingSliderItem(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    color =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                        color =
+                            if (enabled) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.38f,
+                                )
+                            },
                     )
                 }
             }

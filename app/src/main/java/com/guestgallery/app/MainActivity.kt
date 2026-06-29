@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,11 +60,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
 
-            val themeMode = when (settings.themeMode) {
-                "light" -> ThemeMode.LIGHT
-                "dark" -> ThemeMode.DARK
-                else -> ThemeMode.SYSTEM
-            }
+            val themeMode =
+                when (settings.themeMode) {
+                    "light" -> ThemeMode.LIGHT
+                    "dark" -> ThemeMode.DARK
+                    else -> ThemeMode.SYSTEM
+                }
 
             GuestGalleryTheme(
                 themeMode = themeMode,
@@ -98,11 +98,12 @@ class MainActivity : ComponentActivity() {
 
         when (intent.action) {
             Intent.ACTION_SEND -> {
-                val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-                } else {
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
-                }
+                val uri: Uri? =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                    } else {
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                    }
                 uri?.let { uris.add(it.toString()) }
             }
 
@@ -135,9 +136,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun applySecurityFlags(
-        settings: com.guestgallery.domain.model.AppSettings,
-    ) {
+    private fun applySecurityFlags(settings: com.guestgallery.domain.model.AppSettings) {
         // FLAG_SECURE prevents screenshots and screen recording
         if (settings.secureWindowFlag) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)

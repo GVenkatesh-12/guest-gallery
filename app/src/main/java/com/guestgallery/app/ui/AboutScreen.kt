@@ -40,11 +40,12 @@ fun AboutScreen(
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = Dimens.PaddingScreen)
-                .verticalScroll(scrollState),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = Dimens.PaddingScreen)
+                    .verticalScroll(scrollState),
         ) {
             Spacer(modifier = Modifier.height(Dimens.SpacingLg))
 
@@ -66,9 +67,10 @@ fun AboutScreen(
             // Privacy Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                ),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                    ),
             ) {
                 Column(modifier = Modifier.padding(Dimens.PaddingCard)) {
                     Text(
@@ -96,7 +98,11 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "Guest Gallery starts a sandboxed temporary viewing session when photos are shared. The application enforces dynamic window flag configurations, prevents taking screenshots/recordings, hides status and navigation bars, and offers guided device-level screen pinning to protect other device data.",
+                text =
+                    "Guest Gallery starts a sandboxed temporary viewing session when photos are " +
+                        "shared. The application enforces dynamic window flag configurations, prevents " +
+                        "taking screenshots/recordings, hides status and navigation bars, and offers " +
+                        "guided device-level screen pinning to protect other device data.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = Dimens.SpacingXs),
@@ -133,9 +139,10 @@ private fun DependencyItem(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = Dimens.SpacingXs)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = Dimens.SpacingXs),
     ) {
         Text(
             text = name,

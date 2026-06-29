@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
  * Sessions are ephemeral and should not persist across app restarts.
  */
 interface SessionRepository {
-
     /** Observe the currently active session. Emits null when no session is active. */
     fun observeActiveSession(): Flow<ViewingSession?>
 

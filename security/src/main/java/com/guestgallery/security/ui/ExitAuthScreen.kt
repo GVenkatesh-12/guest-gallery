@@ -1,9 +1,6 @@
 package com.guestgallery.security.ui
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -71,10 +68,11 @@ fun ExitAuthScreen(
     onAuthenticated: () -> Unit,
     onCancelled: () -> Unit,
     modifier: Modifier = Modifier,
-    authenticationManager: AuthenticationManager = EntryPointAccessors.fromApplication(
-        LocalContext.current.applicationContext,
-        SecurityEntryPoint::class.java
-    ).authenticationManager(),
+    authenticationManager: AuthenticationManager =
+        EntryPointAccessors.fromApplication(
+            LocalContext.current.applicationContext,
+            SecurityEntryPoint::class.java,
+        ).authenticationManager(),
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -98,7 +96,7 @@ fun ExitAuthScreen(
                         is AuthResult.Success -> onAuthenticated()
                         else -> { /* Let user tap manual button if auto fails */ }
                     }
-                }
+                },
             )
         }
     }
@@ -111,9 +109,10 @@ fun ExitAuthScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { innerPadding ->
         Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
             color = MaterialTheme.colorScheme.background,
         ) {
             FadeAnimatedVisibility(
@@ -121,9 +120,10 @@ fun ExitAuthScreen(
                 durationMs = FADE_IN_DURATION_MS,
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(Dimens.PaddingScreen),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(Dimens.PaddingScreen),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -188,9 +188,10 @@ fun ExitAuthScreen(
                                 )
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Lock,
