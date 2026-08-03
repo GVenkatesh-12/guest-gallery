@@ -5,64 +5,242 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — Guest Gallery</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; color: #1f2328; line-height: 1.6; }
-  h1 { font-size: 1.8rem; border-bottom: 1px solid #d8dee4; padding-bottom: 12px; }
-  h2 { font-size: 1.15rem; margin-top: 28px; }
-  p, li { font-size: 0.95rem; }
-  .updated { color: #57606a; font-size: 0.85rem; }
+  :root {
+    --primary: #006B5E;
+    --primary-dark: #005047;
+    --accent: #2EE6A8;
+    --bg: #0B1215;
+    --bg-card: #111B20;
+    --border: #1E2B31;
+    --text: #E6EDEF;
+    --text-muted: #93A5AC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 107, 94, 0.22), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(46, 230, 168, 0.05), transparent);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  header {
+    text-align: center;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: 96px; height: 96px;
+    border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--border), 0 12px 40px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtitle { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+  .updated {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 14px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    border: 1px solid rgba(46, 230, 168, 0.35);
+    border-radius: 999px;
+    background: rgba(46, 230, 168, 0.06);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .badge svg { flex-shrink: 0; }
+  .badge .dot { color: var(--accent); }
+
+  h2 {
+    font-size: 1.05rem;
+    margin: 36px 0 10px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 svg { flex-shrink: 0; }
+  p { color: var(--text); font-size: 0.95rem; }
+  ul { padding-left: 20px; }
+  li { margin: 8px 0; color: var(--text-muted); font-size: 0.95rem; }
+  li strong { color: var(--text); }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-top: 20px;
+  }
+  .card p, .card li { color: var(--text-muted); }
+  .card p + p { margin-top: 10px; }
+  .intro { margin-top: 32px; font-size: 0.98rem; }
+
+  .highlight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .stat .label { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+  .perm {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .perm + .perm { border-top: 1px solid var(--border); }
+  .perm svg { margin-top: 2px; flex-shrink: 0; }
+  .perm strong { display: block; font-size: 0.92rem; color: var(--text); }
+  .perm span { font-size: 0.85rem; color: var(--text-muted); }
+
   address { font-style: normal; }
+  address a { color: var(--accent); text-decoration: none; }
+  address a:hover { text-decoration: underline; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  .lockline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
 </style>
 </head>
 <body>
+<div class="container">
 
-<h1>Privacy Policy</h1>
-<p class="updated">Last updated: August 3, 2026</p>
+  <header>
+    <img class="logo" src="icon.png" alt="Guest Gallery icon" width="96" height="96">
+    <h1>Guest Gallery — Privacy Policy</h1>
+    <p class="subtitle">A privacy-first Android photo sharing app</p>
+    <span class="updated">Last updated: August 3, 2026</span>
+    <div class="badges">
+      <span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> No Internet Permission</span>
+      <span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> On-Device Only</span>
+      <span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg> Zero Data Collected</span>
+    </div>
+  </header>
 
-<p>This Privacy Policy describes how <strong>Guest Gallery</strong> ("we", "our", or "the app") collects, uses, and handles information when you use our Android application.</p>
+  <p class="intro">This Privacy Policy explains how <strong>Guest Gallery</strong> ("we", "our", "the app") handles information when you use our Android application. Our commitment is simple: <strong>your photos and data never leave your device.</strong></p>
 
-<h2>1. Information We Collect</h2>
-<p>We collect <strong>no personal information</strong>. Guest Gallery is a fully offline application:</p>
-<ul>
-  <li><strong>No account or registration</strong> is required.</li>
-  <li><strong>No photos, images, or media</strong> are ever uploaded, transmitted, or stored by us.</li>
-  <li><strong>No analytics, advertising, or tracking</strong> of any kind.</li>
-  <li><strong>No personal data</strong> such as name, email, location, or device identifiers is collected.</li>
-</ul>
+  <div class="highlight-grid">
+    <div class="stat"><div class="value">0</div><div class="label">Data Collected</div></div>
+    <div class="stat"><div class="value">0</div><div class="label">Trackers &amp; Analytics</div></div>
+    <div class="stat"><div class="value">0</div><div class="label">Servers &amp; Cloud Sync</div></div>
+    <div class="stat"><div class="value">100%</div><div class="label">On-Device Processing</div></div>
+  </div>
 
-<h2>2. How the App Works</h2>
-<p>Guest Gallery lets you temporarily share selected photos with a guest. The photos you select are only read directly from your device's storage and displayed locally. They remain on your device and are never transferred outside of it.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>1. Information We Collect</h2>
+  <p>We collect <strong>no personal information</strong>. Guest Gallery is a fully offline application:</p>
+  <ul>
+    <li><strong>No account or registration</strong> is required.</li>
+    <li><strong>No photos, images, or media</strong> are ever uploaded, transmitted, or stored by us.</li>
+    <li><strong>No analytics, advertising, or tracking</strong> of any kind.</li>
+    <li><strong>No personal data</strong> — such as name, email, location, or device identifiers — is collected.</li>
+  </ul>
 
-<h2>3. Permissions</h2>
-<p>The app uses only the permissions required to function:</p>
-<ul>
-  <li><strong>Photo/media access</strong> — used solely to display the photos you choose to share, and nothing else.</li>
-  <li><strong>Fingerprint / device PIN</strong> — used only to verify the device owner when exiting the guest session.</li>
-</ul>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>2. How the App Works</h2>
+  <p>Guest Gallery lets you temporarily share selected photos with a guest. The photos you select are read directly from your device's storage and displayed locally in a secure, sandboxed viewer. They remain on your device and are never transferred outside of it.</p>
 
-<h2>4. Internet and Network</h2>
-<p>Guest Gallery is engineered <strong>without the Internet permission</strong>. It is physically incapable of connecting to a network, sending data, or leaking information. Your photos never leave your device.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>3. Permissions</h2>
+  <p>The app requests only the permissions required to function — nothing more:</p>
+  <div class="card">
+    <div class="perm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <div><strong>Photo / media access</strong><span>Used solely to display the photos you choose to share — and nothing else.</span></div>
+    </div>
+    <div class="perm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5v2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/><path d="M12 11v4"/></svg>
+      <div><strong>Fingerprint / device PIN</strong><span>Used only to verify the device owner when exiting the guest session.</span></div>
+    </div>
+  </div>
 
-<h2>5. Data Storage and Security</h2>
-<p>Because no data is collected or transmitted, there is nothing stored on any server. Any photos shown remain in your own device storage under your control.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>4. Internet and Network</h2>
+  <div class="card">
+    <p>Guest Gallery is engineered <strong>without the Internet permission</strong> in its application manifest. This means the app is physically incapable of connecting to a network, sending data, or leaking information. <strong>Your photos never leave your device.</strong></p>
+  </div>
 
-<h2>6. Third-Party Services</h2>
-<p>The app does not use any third-party services, SDKs, cloud providers, or data processors.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>5. Data Storage and Security</h2>
+  <p>Because no data is collected or transmitted, there is nothing stored on any server. Photos shown during a session remain in your own device storage, fully under your control. The guest viewer is ephemeral: no library, timeline, or persistent records are created.</p>
 
-<h2>7. Children's Privacy</h2>
-<p>The app does not collect any personal information from anyone, including children under 13.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 6h18v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>6. Third-Party Services</h2>
+  <p>The app does not use any third-party services, SDKs, cloud providers, or data processors.</p>
 
-<h2>8. Your Rights</h2>
-<p>Since we hold no data about you, there is nothing to access, correct, or delete. All data remains on your device, which you can manage at any time.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>7. Children's Privacy</h2>
+  <p>The app does not collect any personal information from anyone, including children under 13.</p>
 
-<h2>9. Changes to This Policy</h2>
-<p>We may update this Privacy Policy from time to time. Any changes will be reflected on this page with a revised "Last updated" date.</p>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>8. Your Rights</h2>
+  <p>Since we hold no data about you, there is nothing to access, correct, or delete. All data remains on your device, which you can manage at any time.</p>
 
-<h2>10. Contact Us</h2>
-<p>If you have any questions about this Privacy Policy, please contact us at:</p>
-<address>
-  Guest Gallery<br>
-  <a href="mailto:youremail@example.com">youremail@example.com</a>
-</address>
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>9. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. Any changes will be reflected on this page with a revised "Last updated" date.</p>
 
+  <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>10. Contact Us</h2>
+  <p>If you have any questions about this Privacy Policy, please contact us:</p>
+  <address>Guest Gallery &middot; <a href="mailto:gvenkatesh.on@gmail.com">gvenkatesh.on@gmail.com</a></address>
+
+  <footer>
+    <div class="lockline">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Private by design &middot; Zero data &middot; Zero tracking
+    </div>
+    &copy; 2026 Guest Gallery. All rights reserved.
+  </footer>
+
+</div>
 </body>
 </html>
