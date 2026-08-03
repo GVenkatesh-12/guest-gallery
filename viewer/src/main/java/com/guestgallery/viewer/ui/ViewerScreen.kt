@@ -44,6 +44,14 @@ import com.guestgallery.domain.model.TransitionStyle
 import com.guestgallery.domain.model.ViewerBackground
 import kotlin.math.absoluteValue
 
+private const val MILLIS_PER_MINUTE = 60_000L
+private const val DEPTH_ALPHA_FACTOR = 0.5f
+private const val DEPTH_SCALE_FACTOR = 0.1f
+private const val BYTES_PER_KILOBYTE = 1_024L
+private const val BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE
+private const val KILOBYTES_AS_FLOAT = 1_024f
+private const val MEGABYTES_AS_FLOAT = KILOBYTES_AS_FLOAT * KILOBYTES_AS_FLOAT
+
 /**
  * Main image viewer screen.
  *
@@ -102,7 +110,7 @@ fun ViewerScreen(
     LaunchedEffect(settings?.autoCloseAfterTimeoutMinutes, uiState.totalCount) {
         val timeoutMinutes = settings?.autoCloseAfterTimeoutMinutes ?: 0
         if (timeoutMinutes > 0 && uiState.totalCount > 0) {
-            kotlinx.coroutines.delay(timeoutMinutes * 60_000L)
+            kotlinx.coroutines.delay(timeoutMinutes * MILLIS_PER_MINUTE)
             viewModel.requestTimedExit()
         }
     }
@@ -198,9 +206,9 @@ private fun Modifier.pageTransition(
                 TransitionStyle.CROSSFADE -> alpha = 1f - pageOffset
                 TransitionStyle.SLIDE -> translationX = pageOffset * size.width.toFloat()
                 TransitionStyle.DEPTH -> {
-                    alpha = 1f - (pageOffset * 0.5f)
-                    scaleX = 1f - (pageOffset * 0.1f)
-                    scaleY = 1f - (pageOffset * 0.1f)
+                    alpha = 1f - (pageOffset * DEPTH_ALPHA_FACTOR)
+                    scaleX = 1f - (pageOffset * DEPTH_SCALE_FACTOR)
+                    scaleY = 1f - (pageOffset * DEPTH_SCALE_FACTOR)
                 }
                 TransitionStyle.NONE -> Unit
             }
@@ -383,7 +391,7 @@ private fun loadImageMetadata(
 }
 
 private fun formatFileSize(bytes: Long): String {
-    if (bytes < 1_024) return "$bytes B"
-    if (bytes < 1_024 * 1_024) return "%.1f KB".format(bytes / 1_024f)
-    return "%.1f MB".format(bytes / (1_024f * 1_024f))
+    if (bytes < BYTES_PER_KILOBYTE) return "$bytes B"
+    if (bytes < BYTES_PER_MEGABYTE) return "%.1f KB".format(bytes / KILOBYTES_AS_FLOAT)
+    return "%.1f MB".format(bytes / MEGABYTES_AS_FLOAT)
 }
