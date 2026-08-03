@@ -134,28 +134,3 @@ val AppTypography =
                 letterSpacing = 0.5.sp,
             ),
     )
-
-/** Scales the text sizes while preserving the app's typography hierarchy. */
-fun androidx.compose.material3.Typography.scaled(scale: Float): androidx.compose.material3.Typography {
-    if (scale == 1f) return this
-
-    fun androidx.compose.ui.text.TextStyle.scaled() = copy(fontSize = fontSize * scale)
-
-    return copy(
-        displayLarge = displayLarge.scaled(),
-        displayMedium = displayMedium.scaled(),
-        displaySmall = displaySmall.scaled(),
-        headlineLarge = headlineLarge.scaled(),
-        headlineMedium = headlineMedium.scaled(),
-        headlineSmall = headlineSmall.scaled(),
-        titleLarge = titleLarge.scaled(),
-        titleMedium = titleMedium.scaled(),
-        titleSmall = titleSmall.scaled(),
-        bodyLarge = bodyLarge.scaled(),
-        bodyMedium = bodyMedium.scaled(),
-        bodySmall = bodySmall.scaled(),
-        labelLarge = labelLarge.scaled(),
-        labelMedium = labelMedium.scaled(),
-        labelSmall = labelSmall.scaled(),
-    )
-}

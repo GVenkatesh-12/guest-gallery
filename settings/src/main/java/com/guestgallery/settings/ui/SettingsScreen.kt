@@ -1,65 +1,29 @@
 package com.guestgallery.settings.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Accessibility
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.PrivacyTip
-import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.Speed
-import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.rounded.PinDrop
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guestgallery.core.theme.Dimens
-import com.guestgallery.core.theme.motionDuration
-import com.guestgallery.core.ui.components.GlassSurface
 import com.guestgallery.core.ui.components.GuestGalleryTopBar
-import com.guestgallery.settings.ui.components.SettingsCategory
-import com.guestgallery.settings.ui.sections.AccessibilitySettingsSection
-import com.guestgallery.settings.ui.sections.AppearanceSettingsSection
-import com.guestgallery.settings.ui.sections.PerformanceSettingsSection
-import com.guestgallery.settings.ui.sections.PrivacySettingsSection
-import com.guestgallery.settings.ui.sections.SecuritySettingsSection
-import com.guestgallery.settings.ui.sections.ViewerSettingsSection
-import kotlinx.coroutines.launch
+import com.guestgallery.settings.ui.components.SettingToggleItem
 
-private const val CATEGORY_ENTER_EXPANSION_MS = 220
-private const val CATEGORY_ENTER_FADE_MS = 180
-private const val CATEGORY_EXIT_EXPANSION_MS = 180
-private const val CATEGORY_EXIT_FADE_MS = 140
-
+/**
+ * Keeps the only user choice that changes the core guest-viewing workflow.
+ */
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
@@ -67,28 +31,18 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
-    val currentSettings = settings
 
-    var securityExpanded by remember { mutableStateOf(true) }
-    var viewerExpanded by remember { mutableStateOf(false) }
-    var appearanceExpanded by remember { mutableStateOf(false) }
-    var privacyExpanded by remember { mutableStateOf(false) }
-    var performanceExpanded by remember { mutableStateOf(false) }
-    var accessibilityExpanded by remember { mutableStateOf(false) }
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-
-    if (currentSettings == null) {
-        Scaffold(
-            modifier = modifier.fillMaxSize(),
-            topBar = {
-                GuestGalleryTopBar(
-                    title = "Settings",
-                    onBackClick = onBackClick,
-                )
-            },
-        ) { innerPadding ->
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            GuestGalleryTopBar(
+                title = "Screen pinning",
+                onBackClick = onBackClick,
+            )
+        },
+    ) { innerPadding ->
+        val currentSettings = settings
+        if (currentSettings == null) {
             Box(
                 modifier =
                     Modifier
@@ -98,206 +52,43 @@ fun SettingsScreen(
             ) {
                 CircularProgressIndicator()
             }
-        }
-        return
-    }
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            GuestGalleryTopBar(
-                title = "Settings",
-                onBackClick = onBackClick,
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { innerPadding ->
-        LazyColumn(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-        ) {
-            // ── Security Category ────────────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Security & Lockdown",
-                    icon = Icons.Rounded.Security,
-                    expanded = securityExpanded,
-                    onToggle = { securityExpanded = !securityExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = securityExpanded) {
-                    SecuritySettingsSection(
-                        settings = currentSettings,
-                        onUpdate = { key, value -> viewModel.updateBoolean(key, value) },
-                        onUpdateInt = { key, value -> viewModel.updateInt(key, value) },
-                    )
-                }
-            }
-
-            // ── Viewer Category ──────────────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Viewer Controls",
-                    icon = Icons.Rounded.Visibility,
-                    expanded = viewerExpanded,
-                    onToggle = { viewerExpanded = !viewerExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = viewerExpanded) {
-                    ViewerSettingsSection(
-                        settings = currentSettings,
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            // ── Appearance Category ──────────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Appearance & Theme",
-                    icon = Icons.Rounded.Palette,
-                    expanded = appearanceExpanded,
-                    onToggle = { appearanceExpanded = !appearanceExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = appearanceExpanded) {
-                    AppearanceSettingsSection(
-                        settings = currentSettings,
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            // ── Privacy Category ─────────────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Privacy & Erasure",
-                    icon = Icons.Rounded.PrivacyTip,
-                    expanded = privacyExpanded,
-                    onToggle = { privacyExpanded = !privacyExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = privacyExpanded) {
-                    PrivacySettingsSection(
-                        settings = currentSettings,
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            // ── Performance Category ─────────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Performance & Storage",
-                    icon = Icons.Rounded.Speed,
-                    expanded = performanceExpanded,
-                    onToggle = { performanceExpanded = !performanceExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = performanceExpanded) {
-                    PerformanceSettingsSection(
-                        settings = currentSettings,
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            // ── Accessibility Category ───────────────────────────────────────
-            item {
-                SettingsCategory(
-                    title = "Accessibility & Comfort",
-                    icon = Icons.Rounded.Accessibility,
-                    expanded = accessibilityExpanded,
-                    onToggle = { accessibilityExpanded = !accessibilityExpanded },
-                )
-            }
-            item {
-                AnimatedCategoryVisibility(visible = accessibilityExpanded) {
-                    AccessibilitySettingsSection(
-                        settings = currentSettings,
-                        viewModel = viewModel,
-                    )
-                }
-            }
-
-            // ── Maintenance Tools ────────────────────────────────────────────
-            item {
-                Column(
+        } else {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(top = Dimens.SpacingMd),
+            ) {
+                Text(
+                    text = "Protect a shared viewing session",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(Dimens.PaddingScreen)
-                            .navigationBarsPadding(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingSm),
-                ) {
-                    Spacer(modifier = Modifier.height(Dimens.SpacingMd))
-
-                    OutlinedButton(
-                        onClick = {
-                            viewModel.clearCache()
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Temporary cache cleared")
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            .padding(horizontal = Dimens.PaddingScreen),
+                )
+                Text(
+                    text = "Screen pinning is the reliable system control that keeps guests in Guest Gallery.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = Dimens.PaddingScreen,
+                                vertical = Dimens.SpacingXs,
                             ),
-                    ) {
-                        Text("Clear Cache Files")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            viewModel.resetToDefaults()
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Settings reset to defaults")
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error,
-                            ),
-                    ) {
-                        Text("Reset All to Defaults")
-                    }
-                }
+                )
+                SettingToggleItem(
+                    title = "Show screen-pinning reminder",
+                    subtitle = "Prompt before opening a shared photo session",
+                    checked = currentSettings.enableScreenPinningReminder,
+                    onCheckedChange = viewModel::setScreenPinningReminder,
+                    icon = Icons.Rounded.PinDrop,
+                )
             }
-        }
-    }
-}
-
-@Composable
-private fun AnimatedCategoryVisibility(
-    visible: Boolean,
-    content: @Composable () -> Unit,
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter =
-            expandVertically(animationSpec = tween(motionDuration(CATEGORY_ENTER_EXPANSION_MS))) +
-                fadeIn(animationSpec = tween(motionDuration(CATEGORY_ENTER_FADE_MS))),
-        exit =
-            shrinkVertically(animationSpec = tween(motionDuration(CATEGORY_EXIT_EXPANSION_MS))) +
-                fadeOut(animationSpec = tween(motionDuration(CATEGORY_EXIT_FADE_MS))),
-    ) {
-        GlassSurface(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.SpacingSm, vertical = Dimens.SpacingXs),
-        ) {
-            content()
         }
     }
 }

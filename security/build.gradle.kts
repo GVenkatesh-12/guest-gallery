@@ -32,7 +32,6 @@ android {
 
 dependencies {
     // Modules
-    implementation(project(":domain"))
     implementation(project(":core"))
 
     // Compose BOM
@@ -40,24 +39,12 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.bundles.compose.debug)
 
-    // Biometric
-    implementation(libs.biometric)
-
-    // Navigation
-    implementation(libs.navigation.compose)
-
-    // Lifecycle
-    implementation(libs.bundles.lifecycle)
-
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose)
 
     // AndroidX
     implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-
     // Testing
     testImplementation(libs.bundles.testing)
 }

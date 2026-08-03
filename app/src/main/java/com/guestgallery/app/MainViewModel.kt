@@ -17,12 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * Root-level ViewModel that orchestrates app-wide state transitions.
- *
- * Manages the lifecycle of viewing sessions and coordinates
- * exit-authentication logic based on user settings.
- */
+/** Coordinates short-lived, memory-only shared-image sessions. */
 @HiltViewModel
 class MainViewModel
     @Inject
@@ -32,7 +27,6 @@ class MainViewModel
         getSettingsUseCase: GetSettingsUseCase,
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        /** Observable settings stream, shared across collectors. */
         val settings: StateFlow<AppSettings?> =
             getSettingsUseCase()
                 .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -40,104 +34,35 @@ class MainViewModel
         private val _appState = MutableStateFlow<AppState>(AppState.Welcome)
         val appState: StateFlow<AppState> = _appState.asStateFlow()
 
-        /** Whether the host Activity should finish itself. */
         private val _finishEvent = MutableStateFlow(false)
         val finishEvent: StateFlow<Boolean> = _finishEvent.asStateFlow()
 
-        // ── Public API ───────────────────────────────────────────────────────────
-
-        /**
-         * Called when images are received via a share intent.
-         * Creates a new viewing session and transitions to [AppState.Viewing].
-         */
         fun onImagesReceived(uris: List<String>) {
             if (uris.isEmpty()) return
+
             viewModelScope.launch {
                 createSessionUseCase(uris)
-                    .onSuccess { session ->
-                        _appState.value = AppState.Viewing(session)
-                    }
-                    .onFailure {
-                        // If session creation fails, stay on Welcome
-                        _appState.value = AppState.Welcome
-                    }
+                    .onSuccess { session -> _appState.value = AppState.Viewing(session) }
+                    .onFailure { _appState.value = AppState.Welcome }
             }
         }
 
-        /**
-         * Called when the user (device owner) wants to exit.
-         * If authentication is required by settings, transitions to [AppState.ExitAuth];
-         * otherwise destroys the session and finishes immediately.
-         */
+        /** Screen pinning supplies the system-level exit protection when enabled. */
         fun requestExit() {
-            val currentSettings = settings.value
-            val authRequired =
-                currentSettings?.let {
-                    it.requireFingerprintToExit || it.requirePinToExit
-                } ?: true
-
-            if (authRequired) {
-                _appState.value =
-                    AppState.ExitAuth(
-                        requireFingerprint = currentSettings?.requireFingerprintToExit == true,
-                        requirePin = currentSettings?.requirePinToExit == true,
-                    )
-            } else {
-                destroyAndFinish()
-            }
-        }
-
-        /** Called after the device owner successfully authenticates to exit. */
-        fun onAuthSuccess() {
-            destroyAndFinish()
-        }
-
-        /** Called when the owner cancels exit authentication — returns to viewing. */
-        fun onAuthCancel() {
-            val current = _appState.value
-            // Only revert if we're on the auth screen; otherwise keep current state
-            if (current is AppState.ExitAuth) {
-                _appState.value = AppState.Viewing(null)
-            }
-        }
-
-        /** Resets the finish event after Activity has consumed it. */
-        fun onFinishConsumed() {
-            _finishEvent.value = false
-        }
-
-        // ── Internal ─────────────────────────────────────────────────────────────
-
-        private fun destroyAndFinish() {
             viewModelScope.launch {
-                if (
-                    settings.value?.clearCacheOnExit == true ||
-                    settings.value?.autoDeleteTempFiles == true
-                ) {
-                    runCatching { settingsRepository.clearCache() }
-                }
+                runCatching { settingsRepository.clearCache() }
                 destroySessionUseCase()
                 _finishEvent.value = true
             }
         }
+
+        fun onFinishConsumed() {
+            _finishEvent.value = false
+        }
     }
 
-/**
- * Sealed class representing the top-level application state.
- */
 sealed class AppState {
-    /** Initial state — app launched directly, no images shared. */
-    data object Loading : AppState()
-
-    /** Welcome screen shown when no session exists. */
     data object Welcome : AppState()
 
-    /** Actively viewing shared images. */
-    data class Viewing(val session: ViewingSession?) : AppState()
-
-    /** Awaiting authentication before exiting. */
-    data class ExitAuth(
-        val requireFingerprint: Boolean,
-        val requirePin: Boolean,
-    ) : AppState()
+    data class Viewing(val session: ViewingSession) : AppState()
 }

@@ -19,9 +19,6 @@
 # Keep data classes used for DataStore
 -keep class com.guestgallery.domain.model.** { *; }
 
-# Keep BiometricPrompt
--keep class androidx.biometric.** { *; }
-
 # Standard Android rules
 -keepattributes *Annotation*
 -keepattributes SourceFile,LineNumberTable

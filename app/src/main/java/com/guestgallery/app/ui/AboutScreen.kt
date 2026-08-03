@@ -99,11 +99,10 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text =
-                    "Guest Gallery starts a sandboxed temporary viewing session when photos are " +
-                        "shared. The application enforces dynamic window flag configurations, prevents " +
-                        "taking screenshots/recordings, hides status and navigation bars, and offers " +
-                        "guided device-level screen pinning to protect other device data.",
+                    text =
+                        "Guest Gallery opens only the photos you share in a temporary session. " +
+                        "The viewer blocks screenshots and recordings, keeps the screen awake, hides " +
+                        "system bars, and offers a screen-pinning reminder to protect the rest of your device.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = Dimens.SpacingXs),
@@ -126,8 +125,6 @@ fun AboutScreen(
             DependencyItem(name = "Dagger Hilt", license = "Apache License 2.0")
             DependencyItem(name = "Coil Image Loader", license = "Apache License 2.0")
             DependencyItem(name = "Telephoto Zoom Library", license = "Apache License 2.0")
-            DependencyItem(name = "AndroidX Biometric", license = "Apache License 2.0")
-
             Spacer(modifier = Modifier.height(32.dp))
         }
     }

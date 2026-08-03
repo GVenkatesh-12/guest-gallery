@@ -10,5 +10,4 @@ object Routes {
     const val VIEWER = "viewer"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
-    const val EXIT_AUTH = "exit_auth"
 }

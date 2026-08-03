@@ -1,8 +1,5 @@
 package com.guestgallery.app.navigation
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,8 +13,6 @@ import com.guestgallery.app.AppState
 import com.guestgallery.app.MainViewModel
 import com.guestgallery.app.ui.AboutScreen
 import com.guestgallery.app.ui.WelcomeScreen
-import com.guestgallery.core.theme.motionDuration
-import com.guestgallery.security.ui.ExitAuthScreen
 import com.guestgallery.settings.navigation.navigateToSettings
 import com.guestgallery.settings.navigation.settingsScreen
 import com.guestgallery.viewer.navigation.viewerScreen
@@ -25,16 +20,16 @@ import com.guestgallery.viewer.navigation.viewerScreen
 @Composable
 fun AppNavHost(
     mainViewModel: MainViewModel,
+    onExitClick: () -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = if (mainViewModel.appState.value is AppState.Viewing) Routes.VIEWER else Routes.WELCOME,
 ) {
     val appState by mainViewModel.appState.collectAsStateWithLifecycle()
-    val navigationDuration = motionDuration(NAVIGATION_ANIMATION_MS)
 
     LaunchedEffect(appState) {
         when (appState) {
-            is AppState.Welcome -> {
+            AppState.Welcome -> {
                 navController.navigate(Routes.WELCOME) {
                     popUpTo(0) { inclusive = true }
                 }
@@ -44,12 +39,6 @@ fun AppNavHost(
                     popUpTo(0) { inclusive = true }
                 }
             }
-            is AppState.ExitAuth -> {
-                navController.navigate(Routes.EXIT_AUTH) {
-                    launchSingleTop = true
-                }
-            }
-            else -> {}
         }
     }
 
@@ -57,10 +46,7 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-        enterTransition = { fadeIn(animationSpec = tween(navigationDuration)) },
-        exitTransition = { fadeOut(animationSpec = tween(navigationDuration)) },
     ) {
-        // Welcome route
         composable(route = Routes.WELCOME) {
             WelcomeScreen(
                 onOpenSettings = { navController.navigateToSettings() },
@@ -68,38 +54,12 @@ fun AppNavHost(
             )
         }
 
-        // Viewer route
-        viewerScreen(
-            onExitClick = { mainViewModel.requestExit() },
-        )
+        viewerScreen(onExitClick = onExitClick)
 
-        // Settings route
-        settingsScreen(
-            onBackClick = { navController.popBackStack() },
-        )
+        settingsScreen(onBackClick = { navController.popBackStack() })
 
-        // About route
         composable(route = Routes.ABOUT) {
-            AboutScreen(
-                onBackClick = { navController.popBackStack() },
-            )
-        }
-
-        // Exit Auth route
-        composable(route = Routes.EXIT_AUTH) {
-            val exitAuth = appState as? AppState.ExitAuth
-            ExitAuthScreen(
-                requireFingerprint = exitAuth?.requireFingerprint == true,
-                requirePin = exitAuth?.requirePin == true,
-                onAuthenticated = {
-                    mainViewModel.onAuthSuccess()
-                },
-                onCancelled = {
-                    mainViewModel.onAuthCancel()
-                },
-            )
+            AboutScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }
-
-private const val NAVIGATION_ANIMATION_MS = 220

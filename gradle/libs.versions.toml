@@ -24,9 +24,6 @@ hilt-navigation-compose = "1.2.0"
 # Data
 datastore = "1.2.1"
 
-# Security
-biometric = "1.4.0-alpha05"
-
 # AndroidX
 core-ktx = "1.15.0"
 core-splashscreen = "1.2.0"
@@ -81,9 +78,6 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
-
-# Biometric
-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 
 # AndroidX Core
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }

@@ -8,19 +8,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-
-// ── Composition Locals for extended theme data ───────────────────────────────
-val LocalOledMode = staticCompositionLocalOf { false }
-val LocalDynamicColor = staticCompositionLocalOf { true }
-val LocalGlassEffect = staticCompositionLocalOf { false }
-val LocalBlurEffects = staticCompositionLocalOf { true }
-
-private const val MIN_FONT_SCALE = 0.8f
-private const val MAX_FONT_SCALE = 1.5f
 
 // ── Static Color Schemes ─────────────────────────────────────────────────────
 private val LightColorScheme =
@@ -87,99 +75,25 @@ private val DarkColorScheme =
         scrim = Scrim,
     )
 
-private val OledDarkColorScheme =
-    DarkColorScheme.copy(
-        background = OledBlack,
-        surface = OledBlack,
-        surfaceVariant = OledSurfaceVariant,
-    )
-
 @Composable
 fun GuestGalleryTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = true,
-    oledMode: Boolean = false,
-    animationSpeed: Float = 1f,
-    reducedMotion: Boolean = false,
-    fontScale: Float = 1f,
-    highContrast: Boolean = false,
-    cornerRadius: Int = 16,
-    roundedButtons: Boolean = true,
-    glassEffect: Boolean = false,
-    blurEffects: Boolean = true,
-    hapticFeedback: Boolean = true,
-    accentColor: Long = 0L,
     content: @Composable () -> Unit,
 ) {
-    val isDark =
-        when (themeMode) {
-            ThemeMode.LIGHT -> false
-            ThemeMode.DARK -> true
-            ThemeMode.SYSTEM -> isSystemInDarkTheme()
-        }
-
+    val isDark = isSystemInDarkTheme()
     val context = LocalContext.current
-
-    val baseColorScheme =
+    val colorScheme =
         when {
-            // Dynamic colors on Android 12+
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val dynamicScheme =
-                    if (isDark) {
-                        dynamicDarkColorScheme(context)
-                    } else {
-                        dynamicLightColorScheme(context)
-                    }
-                if (isDark && oledMode) {
-                    dynamicScheme.copy(
-                        background = OledBlack,
-                        surface = OledBlack,
-                        surfaceVariant = OledSurfaceVariant,
-                    )
-                } else {
-                    dynamicScheme
-                }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
-            // Static OLED dark
-            isDark && oledMode -> OledDarkColorScheme
-            // Static dark
             isDark -> DarkColorScheme
-            // Static light
             else -> LightColorScheme
         }
 
-    val colorScheme =
-        baseColorScheme.let { scheme ->
-            var adjusted = scheme
-            if (accentColor != 0L) {
-                adjusted = adjusted.copy(primary = Color(accentColor.toInt()))
-            }
-            if (highContrast) {
-                val contrastColor = if (isDark) Color.White else Color.Black
-                adjusted =
-                    adjusted.copy(
-                        onBackground = contrastColor,
-                        onSurface = contrastColor,
-                        onSurfaceVariant = contrastColor,
-                    )
-            }
-            adjusted
-        }
-
-    CompositionLocalProvider(
-        LocalOledMode provides oledMode,
-        LocalDynamicColor provides dynamicColor,
-        LocalAnimationSpeed provides animationSpeed,
-        LocalReducedMotion provides reducedMotion,
-        LocalHapticFeedbackEnabled provides hapticFeedback,
-        LocalGlassEffect provides glassEffect,
-        LocalBlurEffects provides blurEffects,
-    ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = AppTypography.scaled(fontScale.coerceIn(MIN_FONT_SCALE, MAX_FONT_SCALE)),
-            shapes = appShapes(cornerRadius, roundedButtons),
-            content = content,
-        )
-    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = AppTypography,
+        shapes = AppShapes,
+        content = content,
+    )
 }

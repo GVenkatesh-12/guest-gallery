@@ -109,9 +109,6 @@ dependencies {
     // Splash Screen
     implementation(libs.core.splashscreen)
 
-    // Biometric
-    implementation(libs.biometric)
-
     // AndroidX
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

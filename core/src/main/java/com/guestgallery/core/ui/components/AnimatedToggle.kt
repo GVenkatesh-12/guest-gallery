@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.guestgallery.core.theme.LocalHapticFeedbackEnabled
 import com.guestgallery.core.theme.motionDuration
 import kotlin.math.roundToInt
 
@@ -51,7 +50,6 @@ fun AnimatedToggle(
 
     val density = LocalDensity.current
     val hapticFeedback = LocalHapticFeedback.current
-    val hapticFeedbackEnabled = LocalHapticFeedbackEnabled.current
     val maxOffset = with(density) { (trackWidth - thumbSize - thumbPadding * 2).toPx() }
 
     val thumbOffset by animateFloatAsState(
@@ -94,9 +92,7 @@ fun AnimatedToggle(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                 ) {
-                    if (hapticFeedbackEnabled) {
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    }
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onCheckedChange(!checked)
                 },
         contentAlignment = Alignment.CenterStart,

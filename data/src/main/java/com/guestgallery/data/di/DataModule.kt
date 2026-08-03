@@ -11,7 +11,6 @@ import com.guestgallery.domain.repository.SettingsRepository
 import com.guestgallery.domain.usecase.CreateSessionUseCase
 import com.guestgallery.domain.usecase.DestroySessionUseCase
 import com.guestgallery.domain.usecase.GetSettingsUseCase
-import com.guestgallery.domain.usecase.UpdateSettingUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -62,8 +61,5 @@ abstract class DataModule {
             return GetSettingsUseCase(settingsRepository)
         }
 
-        @Provides
-        fun provideUpdateSettingUseCase(settingsRepository: SettingsRepository): UpdateSettingUseCase =
-            UpdateSettingUseCase(settingsRepository)
     }
 }
