@@ -56,6 +56,8 @@ private const val FADE_IN_DURATION_MS = 500
  */
 @Composable
 fun ExitAuthScreen(
+    requireFingerprint: Boolean,
+    requirePin: Boolean,
     onAuthenticated: () -> Unit,
     onCancelled: () -> Unit,
     modifier: Modifier = Modifier,
@@ -81,7 +83,9 @@ fun ExitAuthScreen(
             authenticationManager.authenticate(
                 activity = activity,
                 title = "Exit Guest Gallery",
-                subtitle = "Verify your identity to exit",
+                subtitle = authenticationSubtitle(requireFingerprint, requirePin),
+                allowBiometric = requireFingerprint,
+                allowDeviceCredential = requirePin,
                 onResult = { result ->
                     when (result) {
                         is AuthResult.Success -> onAuthenticated()
@@ -157,7 +161,9 @@ fun ExitAuthScreen(
                                 authenticationManager.authenticate(
                                     activity = activity,
                                     title = "Exit Guest Gallery",
-                                    subtitle = "Verify your identity to exit",
+                                    subtitle = authenticationSubtitle(requireFingerprint, requirePin),
+                                    allowBiometric = requireFingerprint,
+                                    allowDeviceCredential = requirePin,
                                     onResult = { result ->
                                         when (result) {
                                             is AuthResult.Success -> onAuthenticated()
@@ -207,3 +213,13 @@ fun ExitAuthScreen(
         }
     }
 }
+
+private fun authenticationSubtitle(
+    requireFingerprint: Boolean,
+    requirePin: Boolean,
+): String =
+    when {
+        requireFingerprint && requirePin -> "Use fingerprint or device PIN to exit"
+        requireFingerprint -> "Use your fingerprint to exit"
+        else -> "Use your device PIN to exit"
+    }

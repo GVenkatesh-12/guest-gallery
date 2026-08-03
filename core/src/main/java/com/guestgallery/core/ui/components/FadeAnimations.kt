@@ -10,6 +10,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.guestgallery.core.theme.motionDuration
 
 /** Default animation duration in milliseconds. */
 private const val DEFAULT_DURATION = 300
@@ -25,8 +26,8 @@ fun FadeAnimatedVisibility(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = fadeIn(animationSpec = tween(durationMs)),
-        exit = fadeOut(animationSpec = tween(durationMs)),
+        enter = fadeIn(animationSpec = tween(motionDuration(durationMs))),
+        exit = fadeOut(animationSpec = tween(motionDuration(durationMs))),
     ) {
         content()
     }
@@ -46,13 +47,13 @@ fun ScaleFadeAnimatedVisibility(
         enter =
             scaleIn(
                 initialScale = 0.85f,
-                animationSpec = tween(durationMs),
-            ) + fadeIn(animationSpec = tween(durationMs)),
+                animationSpec = tween(motionDuration(durationMs)),
+            ) + fadeIn(animationSpec = tween(motionDuration(durationMs))),
         exit =
             scaleOut(
                 targetScale = 0.85f,
-                animationSpec = tween(durationMs),
-            ) + fadeOut(animationSpec = tween(durationMs)),
+                animationSpec = tween(motionDuration(durationMs)),
+            ) + fadeOut(animationSpec = tween(motionDuration(durationMs))),
     ) {
         content()
     }
@@ -72,13 +73,13 @@ fun SlideUpAnimatedVisibility(
         enter =
             slideInVertically(
                 initialOffsetY = { it / 3 },
-                animationSpec = tween(durationMs),
-            ) + fadeIn(animationSpec = tween(durationMs)),
+                animationSpec = tween(motionDuration(durationMs)),
+            ) + fadeIn(animationSpec = tween(motionDuration(durationMs))),
         exit =
             slideOutVertically(
                 targetOffsetY = { it / 3 },
-                animationSpec = tween(durationMs),
-            ) + fadeOut(animationSpec = tween(durationMs)),
+                animationSpec = tween(motionDuration(durationMs)),
+            ) + fadeOut(animationSpec = tween(motionDuration(durationMs))),
     ) {
         content()
     }

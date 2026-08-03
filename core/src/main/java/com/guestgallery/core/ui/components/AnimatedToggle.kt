@@ -2,7 +2,6 @@ package com.guestgallery.core.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.hapticfeedback.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.guestgallery.core.theme.LocalHapticFeedbackEnabled
+import com.guestgallery.core.theme.motionDuration
 import kotlin.math.roundToInt
+
+private const val THUMB_ANIMATION_MS = 220
 
 /**
  * A premium animated toggle switch with smooth spring physics.
@@ -45,15 +50,13 @@ fun AnimatedToggle(
     val thumbPadding = 3.dp
 
     val density = LocalDensity.current
+    val hapticFeedback = LocalHapticFeedback.current
+    val hapticFeedbackEnabled = LocalHapticFeedbackEnabled.current
     val maxOffset = with(density) { (trackWidth - thumbSize - thumbPadding * 2).toPx() }
 
     val thumbOffset by animateFloatAsState(
         targetValue = if (checked) maxOffset else 0f,
-        animationSpec =
-            spring(
-                dampingRatio = 0.6f,
-                stiffness = 400f,
-            ),
+        animationSpec = tween(durationMillis = motionDuration(THUMB_ANIMATION_MS)),
         label = "thumb_offset",
     )
 
@@ -64,7 +67,7 @@ fun AnimatedToggle(
                 checked -> MaterialTheme.colorScheme.primary
                 else -> MaterialTheme.colorScheme.surfaceVariant
             },
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = tween(durationMillis = motionDuration(200)),
         label = "track_color",
     )
 
@@ -75,7 +78,7 @@ fun AnimatedToggle(
                 checked -> MaterialTheme.colorScheme.onPrimary
                 else -> MaterialTheme.colorScheme.outline
             },
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = tween(durationMillis = motionDuration(200)),
         label = "thumb_color",
     )
 
@@ -90,7 +93,12 @@ fun AnimatedToggle(
                     enabled = enabled,
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                ) { onCheckedChange(!checked) },
+                ) {
+                    if (hapticFeedbackEnabled) {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }
+                    onCheckedChange(!checked)
+                },
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(

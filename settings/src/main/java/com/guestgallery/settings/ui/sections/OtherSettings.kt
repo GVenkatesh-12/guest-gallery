@@ -10,11 +10,13 @@ import androidx.compose.material.icons.rounded.HistoryToggleOff
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsAccessibility
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.guestgallery.domain.model.AppSettings
 import com.guestgallery.settings.ui.SettingsViewModel
+import com.guestgallery.settings.ui.components.SettingDropdownItem
 import com.guestgallery.settings.ui.components.SettingSliderItem
 import com.guestgallery.settings.ui.components.SettingToggleItem
 
@@ -53,6 +55,27 @@ fun PrivacySettingsSection(
             onCheckedChange = { viewModel.updateBoolean("incognitoMode", it) },
             icon = Icons.Rounded.HistoryToggleOff,
         )
+        SettingToggleItem(
+            title = "Memory Optimization",
+            subtitle = "Prefer lower memory use over keeping images cached",
+            checked = settings.memoryOptimization,
+            onCheckedChange = { viewModel.updateBoolean("memoryOptimization", it) },
+            icon = Icons.Rounded.Memory,
+        )
+        SettingToggleItem(
+            title = "Auto-delete Temporary Files",
+            subtitle = "Purge temporary files when the session exits",
+            checked = settings.autoDeleteTempFiles,
+            onCheckedChange = { viewModel.updateBoolean("autoDeleteTempFiles", it) },
+            icon = Icons.Rounded.Cached,
+        )
+        SettingToggleItem(
+            title = "Anonymous Crash Reports",
+            subtitle = "Reserved for an opt-in crash reporting provider",
+            checked = settings.anonymousCrashReports,
+            onCheckedChange = { viewModel.updateBoolean("anonymousCrashReports", it) },
+            icon = Icons.Rounded.Security,
+        )
     }
 }
 
@@ -90,6 +113,34 @@ fun PerformanceSettingsSection(
             onCheckedChange = { viewModel.updateBoolean("batterySaver", it) },
             icon = Icons.Rounded.BatterySaver,
         )
+        SettingToggleItem(
+            title = "Hardware Decode",
+            subtitle = "Prefer hardware bitmap decoding where available",
+            checked = settings.hardwareDecode,
+            onCheckedChange = { viewModel.updateBoolean("hardwareDecode", it) },
+            icon = Icons.Rounded.Speed,
+        )
+        SettingToggleItem(
+            title = "Software Decode",
+            subtitle = "Prefer software decoding for compatibility",
+            checked = settings.softwareDecode,
+            onCheckedChange = { viewModel.updateBoolean("softwareDecode", it) },
+            icon = Icons.Rounded.Speed,
+        )
+        SettingToggleItem(
+            title = "Memory Saver",
+            subtitle = "Reduce preloading and image caching",
+            checked = settings.memorySaver,
+            onCheckedChange = { viewModel.updateBoolean("memorySaver", it) },
+            icon = Icons.Rounded.Memory,
+        )
+        SettingDropdownItem(
+            title = "Animation Quality",
+            selectedValue = settings.animationQuality,
+            options = listOf("high", "medium", "low"),
+            onOptionSelected = { viewModel.updateString("animationQuality", it) },
+            icon = Icons.Rounded.Speed,
+        )
     }
 }
 
@@ -113,6 +164,34 @@ fun AccessibilitySettingsSection(
             checked = settings.hapticFeedback,
             onCheckedChange = { viewModel.updateBoolean("hapticFeedback", it) },
             icon = Icons.Rounded.VolumeUp,
+        )
+        SettingToggleItem(
+            title = "Large Text",
+            subtitle = "Increase the app's text scale",
+            checked = settings.largeText,
+            onCheckedChange = { viewModel.updateBoolean("largeText", it) },
+            icon = Icons.Rounded.SettingsAccessibility,
+        )
+        SettingToggleItem(
+            title = "TalkBack Support",
+            subtitle = "Expose image descriptions to screen readers",
+            checked = settings.talkBackSupport,
+            onCheckedChange = { viewModel.updateBoolean("talkBackSupport", it) },
+            icon = Icons.Rounded.SettingsAccessibility,
+        )
+        SettingToggleItem(
+            title = "One-hand Mode",
+            subtitle = "Keep viewer content within a comfortable reach",
+            checked = settings.oneHandMode,
+            onCheckedChange = { viewModel.updateBoolean("oneHandMode", it) },
+            icon = Icons.Rounded.SettingsAccessibility,
+        )
+        SettingToggleItem(
+            title = "Reduced Motion",
+            subtitle = "Use shorter, calmer transitions throughout the app",
+            checked = settings.reducedMotion,
+            onCheckedChange = { viewModel.updateBoolean("reducedMotion", it) },
+            icon = Icons.Rounded.SettingsAccessibility,
         )
     }
 }

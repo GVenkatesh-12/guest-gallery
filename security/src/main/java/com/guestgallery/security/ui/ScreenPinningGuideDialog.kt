@@ -1,11 +1,7 @@
 package com.guestgallery.security.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,16 +27,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.guestgallery.core.theme.Dimens
-import kotlinx.coroutines.delay
+import com.guestgallery.core.theme.motionDuration
 
 /**
  * Data class for a single guide step.
@@ -75,8 +72,14 @@ private val guideSteps =
         ),
     )
 
-/** Staggered delay (ms) between step reveal animations. */
-private const val STEP_STAGGER_DELAY = 250L
+/** Delay before the stable dialog content starts fading in. */
+private const val DIALOG_CONTENT_DELAY_MS = 80L
+
+/** Stagger between the stable step fade-ins. */
+private const val STEP_STAGGER_DELAY_MS = 35
+
+/** Initial vertical offset for each step's fade-in. */
+private const val STEP_INITIAL_OFFSET_PX = 14f
 
 /**
  * A Material 3 [AlertDialog] that walks the user through enabling screen
@@ -90,14 +93,11 @@ fun ScreenPinningGuideDialog(
     onDismiss: () -> Unit,
     onPinApp: () -> Unit,
 ) {
-    // Tracks how many steps have been revealed so far.
-    var revealedSteps by remember { mutableIntStateOf(0) }
+    var animationStarted by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        for (i in 1..guideSteps.size) {
-            delay(STEP_STAGGER_DELAY)
-            revealedSteps = i
-        }
+        kotlinx.coroutines.delay(DIALOG_CONTENT_DELAY_MS)
+        animationStarted = true
     }
 
     AlertDialog(
@@ -129,15 +129,24 @@ fun ScreenPinningGuideDialog(
                 Spacer(modifier = Modifier.height(Dimens.SpacingSm))
 
                 guideSteps.forEachIndexed { index, step ->
-                    AnimatedVisibility(
-                        visible = index < revealedSteps,
-                        enter =
-                            expandVertically(
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                            ) + fadeIn(animationSpec = tween(durationMillis = 300)),
-                    ) {
-                        StepRow(step = step)
-                    }
+                    val alpha by animateFloatAsState(
+                        targetValue = if (animationStarted) 1f else 0f,
+                        animationSpec =
+                            tween(
+                                durationMillis = motionDuration(260),
+                                delayMillis = index * STEP_STAGGER_DELAY_MS,
+                            ),
+                        label = "pinning_step_alpha_$index",
+                    )
+
+                    StepRow(
+                        step = step,
+                        modifier =
+                            Modifier.graphicsLayer {
+                                this.alpha = alpha
+                                translationY = (1f - alpha) * STEP_INITIAL_OFFSET_PX
+                            },
+                    )
                 }
             }
         },

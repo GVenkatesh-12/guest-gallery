@@ -1,5 +1,6 @@
 package com.guestgallery.viewer.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,10 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.ImageLoader
+import coil3.memory.MemoryCache
 import com.guestgallery.core.theme.Dimens
 import com.guestgallery.core.ui.components.FadeAnimatedVisibility
 import com.guestgallery.core.ui.components.SlideUpAnimatedVisibility
@@ -51,6 +55,9 @@ private const val BYTES_PER_KILOBYTE = 1_024L
 private const val BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE
 private const val KILOBYTES_AS_FLOAT = 1_024f
 private const val MEGABYTES_AS_FLOAT = KILOBYTES_AS_FLOAT * KILOBYTES_AS_FLOAT
+private const val ONE_HAND_BOTTOM_PADDING = 48
+private const val ANIMATION_QUALITY_LOW = "low"
+private const val DEFAULT_IMAGE_CACHE_MB = 128
 
 /**
  * Main image viewer screen.
@@ -63,6 +70,7 @@ private const val MEGABYTES_AS_FLOAT = KILOBYTES_AS_FLOAT * KILOBYTES_AS_FLOAT
  * @param viewModel       Injected Hilt ViewModel.
  */
 @Composable
+@Suppress("CyclomaticComplexMethod")
 fun ViewerScreen(
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -70,6 +78,26 @@ fun ViewerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settings = uiState.settings
+    val minimalUi = settings?.minimalUi == true
+    val reducedMotion =
+        settings?.reducedMotion == true ||
+            settings?.animationQuality == ANIMATION_QUALITY_LOW ||
+            settings?.memorySaver == true ||
+            settings?.batterySaver == true
+    val transitionStyle =
+        if (reducedMotion) TransitionStyle.NONE else settings?.transitionStyle ?: TransitionStyle.NONE
+    val context = LocalContext.current
+    val imageLoader =
+        remember(settings?.imageCacheSizeMb) {
+            ImageLoader.Builder(context)
+                .memoryCache {
+                    MemoryCache.Builder()
+                        .maxSizeBytes(
+                            (settings?.imageCacheSizeMb ?: DEFAULT_IMAGE_CACHE_MB).toLong() *
+                                BYTES_PER_MEGABYTE,
+                        ).build()
+                }.build()
+        }
 
     val backgroundColor =
         when (settings?.viewerBackground) {
@@ -82,9 +110,11 @@ fun ViewerScreen(
 
     val pagerState =
         rememberPagerState(
-            initialPage = uiState.currentIndex,
+            initialPage = uiState.currentIndex.coerceIn(0, (uiState.totalCount - 1).coerceAtLeast(0)),
             pageCount = { uiState.totalCount },
         )
+
+    BackHandler(onBack = onExitClick)
 
     // Sync pager state → ViewModel when user swipes
     LaunchedEffect(pagerState) {
@@ -115,6 +145,16 @@ fun ViewerScreen(
         }
     }
 
+    LaunchedEffect(settings?.autoCloseAfterLastImage, uiState.totalCount) {
+        if (settings?.autoCloseAfterLastImage == true && uiState.totalCount > 1) {
+            snapshotFlow { pagerState.currentPage }.collect { page ->
+                if (page > 0 && page == uiState.totalCount - 1) {
+                    viewModel.requestTimedExit()
+                }
+            }
+        }
+    }
+
     Box(
         modifier =
             modifier
@@ -131,18 +171,41 @@ fun ViewerScreen(
         if (uiState.totalCount > 0 && settings != null) {
             HorizontalPager(
                 state = pagerState,
-                beyondViewportPageCount = settings.preloadCount,
-                contentPadding = PaddingValues(horizontal = settings.edgePadding.dp),
-                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount =
+                    if (settings.memorySaver || settings.memoryOptimization) {
+                        0
+                    } else {
+                        settings.preloadCount
+                    },
+                contentPadding =
+                    PaddingValues(
+                        horizontal = settings.edgePadding.dp,
+                    ),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(bottom = if (settings.oneHandMode) ONE_HAND_BOTTOM_PADDING.dp else 0.dp),
                 key = { uiState.imageUris[it] },
             ) { pageIndex ->
                 ImagePage(
                     imageUri = uiState.imageUris[pageIndex],
-                    contentDescription = "Image ${pageIndex + 1} of ${uiState.totalCount}",
+                    contentDescription =
+                        if (settings.talkBackSupport) {
+                            "Image ${pageIndex + 1} of ${uiState.totalCount}"
+                        } else {
+                            null
+                        },
                     maxZoom = settings.maximumZoom,
                     enableZoom = settings.enableZoom,
                     enableDoubleTapZoom = settings.enableDoubleTapZoom,
-                    modifier = Modifier.pageTransition(settings.transitionStyle, pageIndex, pagerState),
+                    enableRotation = settings.enableRotation,
+                    gestureSensitivity = settings.gestureSensitivity,
+                    memoryOptimization = settings.memoryOptimization || settings.memorySaver,
+                    neverStoreSharedImages = settings.neverStoreSharedImages,
+                    imageLoader = imageLoader,
+                    hardwareDecode = settings.hardwareDecode,
+                    softwareDecode = settings.softwareDecode,
+                    modifier = Modifier.pageTransition(transitionStyle, pageIndex, pagerState),
                 )
             }
         }
@@ -155,9 +218,9 @@ fun ViewerScreen(
             TopOverlay(
                 currentIndex = uiState.currentIndex,
                 totalCount = uiState.totalCount,
-                showCounter = settings?.showImageCounter == true,
+                showCounter = settings?.showImageCounter == true && !minimalUi,
                 isSlideshowActive = uiState.isSlideshowActive,
-                enableSlideshow = settings?.enableSlideshow == true,
+                enableSlideshow = settings?.enableSlideshow == true && !minimalUi,
                 onExitClick = onExitClick,
                 onSlideshowToggle = {
                     if (uiState.isSlideshowActive) {
@@ -176,7 +239,7 @@ fun ViewerScreen(
                 settings?.showFileSize == true
 
         SlideUpAnimatedVisibility(
-            visible = uiState.showUi && showMetadata,
+            visible = uiState.showUi && showMetadata && settings?.minimalUi != true,
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
             MetadataBar(
@@ -198,13 +261,12 @@ private fun Modifier.pageTransition(
         this
     } else {
         graphicsLayer {
-            val pageOffset =
-                ((pageIndex - pagerState.currentPage) + pagerState.currentPageOffsetFraction)
-                    .absoluteValue
-                    .coerceIn(0f, 1f)
+            val signedPageOffset =
+                (pageIndex - pagerState.currentPage) + pagerState.currentPageOffsetFraction
+            val pageOffset = signedPageOffset.absoluteValue.coerceIn(0f, 1f)
             when (transitionStyle) {
                 TransitionStyle.CROSSFADE -> alpha = 1f - pageOffset
-                TransitionStyle.SLIDE -> translationX = pageOffset * size.width.toFloat()
+                TransitionStyle.SLIDE -> translationX = signedPageOffset * size.width.toFloat()
                 TransitionStyle.DEPTH -> {
                     alpha = 1f - (pageOffset * DEPTH_ALPHA_FACTOR)
                     scaleX = 1f - (pageOffset * DEPTH_SCALE_FACTOR)

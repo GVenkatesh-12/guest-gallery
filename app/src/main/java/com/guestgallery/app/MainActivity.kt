@@ -7,15 +7,21 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,6 +36,8 @@ import com.guestgallery.domain.model.AppSettings
 import com.guestgallery.security.lockdown.ScreenPinningHelper
 import com.guestgallery.security.ui.ScreenPinningGuideDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -48,9 +56,13 @@ import javax.inject.Inject
 class MainActivity : FragmentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
+    private var lockedBrightness: Float? = null
+    private val appSwitchBlanked = MutableStateFlow(false)
+
     @Inject
     lateinit var screenPinningHelper: ScreenPinningHelper
 
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         // Must be called before super.onCreate per the SplashScreen API contract
         val splashScreen = installSplashScreen()
@@ -74,6 +86,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
             val appState by viewModel.appState.collectAsStateWithLifecycle()
+            val isAppSwitchBlanked by appSwitchBlanked.collectAsStateWithLifecycle()
             val currentSettings = settings ?: return@setContent
             var showPinningGuide by remember { mutableStateOf(false) }
             var pinningGuideShown by remember { mutableStateOf(false) }
@@ -91,6 +104,7 @@ class MainActivity : FragmentActivity() {
                     !screenPinningHelper.isScreenPinningActive(this@MainActivity)
                 ) {
                     pinningGuideShown = true
+                    delay(PINNING_GUIDE_DELAY_MS)
                     showPinningGuide = true
                 }
             }
@@ -106,6 +120,19 @@ class MainActivity : FragmentActivity() {
                 themeMode = themeMode,
                 dynamicColor = currentSettings.dynamicColors,
                 oledMode = currentSettings.oledBlackMode,
+                animationSpeed = currentSettings.animationSpeed,
+                reducedMotion =
+                    currentSettings.reducedMotion ||
+                        currentSettings.animationQuality == ANIMATION_QUALITY_LOW ||
+                        currentSettings.batterySaver,
+                fontScale = currentSettings.fontSize * if (currentSettings.largeText) LARGE_TEXT_SCALE else 1f,
+                highContrast = currentSettings.highContrast,
+                cornerRadius = currentSettings.cornerRadius,
+                roundedButtons = currentSettings.roundedButtons,
+                glassEffect = currentSettings.glassEffect,
+                blurEffects = currentSettings.blurEffects,
+                hapticFeedback = currentSettings.hapticFeedback,
+                accentColor = currentSettings.accentColor,
             ) {
                 AppNavHost(
                     mainViewModel = viewModel,
@@ -120,8 +147,31 @@ class MainActivity : FragmentActivity() {
                         },
                     )
                 }
+
+                if (isAppSwitchBlanked) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color.Black),
+                    )
+                }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        appSwitchBlanked.value = false
+    }
+
+    override fun onStop() {
+        if (viewModel.appState.value is AppState.Viewing &&
+            viewModel.settings.value?.blankScreenOnAppSwitch == true
+        ) {
+            appSwitchBlanked.value = true
+        }
+        super.onStop()
     }
 
     /**
@@ -195,6 +245,7 @@ class MainActivity : FragmentActivity() {
             WindowCompat.getInsetsController(window, window.decorView)
                 .show(WindowInsetsCompat.Type.systemBars())
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            restoreBrightness()
             return
         }
 
@@ -219,16 +270,18 @@ class MainActivity : FragmentActivity() {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
+        applyBrightnessPolicy(settings.preventBrightnessChange)
+
         // Immersive mode: hide status bar and/or navigation bar
         val insetsController = WindowCompat.getInsetsController(window, window.decorView)
         insetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         when {
-            settings.hideStatusBar && settings.hideNavigationBar -> {
+            (settings.hideStatusBar || settings.hideNotifications) && settings.hideNavigationBar -> {
                 insetsController.hide(WindowInsetsCompat.Type.systemBars())
             }
-            settings.hideStatusBar -> {
+            settings.hideStatusBar || settings.hideNotifications -> {
                 insetsController.hide(WindowInsetsCompat.Type.statusBars())
                 insetsController.show(WindowInsetsCompat.Type.navigationBars())
             }
@@ -256,9 +309,56 @@ class MainActivity : FragmentActivity() {
             viewModel.finishEvent.collectLatest { shouldFinish ->
                 if (shouldFinish) {
                     viewModel.onFinishConsumed()
-                    finish()
+                    if (viewModel.settings.value?.autoLockOnExit == true) {
+                        finishAndRemoveTask()
+                    } else {
+                        finish()
+                    }
                 }
             }
         }
     }
+
+    private fun applyBrightnessPolicy(enabled: Boolean) {
+        if (!enabled) {
+            restoreBrightness()
+            return
+        }
+
+        if (lockedBrightness == null) {
+            val currentWindowBrightness = window.attributes.screenBrightness
+            lockedBrightness =
+                if (currentWindowBrightness >= 0f) {
+                    currentWindowBrightness
+                } else {
+                    Settings.System.getInt(
+                        contentResolver,
+                        Settings.System.SCREEN_BRIGHTNESS,
+                        DEFAULT_BRIGHTNESS,
+                    ) / MAX_BRIGHTNESS.toFloat()
+                }
+        }
+
+        window.attributes =
+            window.attributes.apply {
+                screenBrightness = lockedBrightness ?: DEFAULT_BRIGHTNESS_RATIO
+            }
+    }
+
+    private fun restoreBrightness() {
+        if (lockedBrightness == null) return
+
+        window.attributes =
+            window.attributes.apply {
+                screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
+        lockedBrightness = null
+    }
 }
+
+private const val PINNING_GUIDE_DELAY_MS = 260L
+private const val DEFAULT_BRIGHTNESS = 128
+private const val MAX_BRIGHTNESS = 255
+private const val DEFAULT_BRIGHTNESS_RATIO = 0.5f
+private const val LARGE_TEXT_SCALE = 1.15f
+private const val ANIMATION_QUALITY_LOW = "low"

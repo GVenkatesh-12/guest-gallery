@@ -6,9 +6,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RoundedCorner
 import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.ViewCompact
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.guestgallery.domain.model.AppSettings
@@ -69,6 +71,33 @@ fun AppearanceSettingsSection(
             icon = Icons.Rounded.Speed,
         )
 
+        SettingDropdownItem(
+            title = "Accent Color",
+            selectedValue = accentLabel(settings.accentColor),
+            options = ACCENT_PRESETS.keys.toList(),
+            onOptionSelected = { viewModel.updateLong("accentColor", ACCENT_PRESETS.getValue(it)) },
+            icon = Icons.Rounded.ColorLens,
+        )
+
+        SettingSliderItem(
+            title = "Font Size",
+            subtitle = "Scale app text independently of system settings",
+            value = settings.fontSize,
+            onValueChange = { viewModel.updateFloat("fontSize", it) },
+            valueRange = 0.8f..1.5f,
+            steps = 6,
+            valueLabel = "%.1fx".format(settings.fontSize),
+            icon = Icons.Rounded.FormatSize,
+        )
+
+        SettingToggleItem(
+            title = "Minimal Viewer UI",
+            subtitle = "Hide counters, slideshow controls, and metadata overlays",
+            checked = settings.minimalUi,
+            onCheckedChange = { viewModel.updateBoolean("minimalUi", it) },
+            icon = Icons.Rounded.ViewCompact,
+        )
+
         SettingToggleItem(
             title = "Glassmorphism Card Effect",
             subtitle = "Translucent blurred backdrop dialogs",
@@ -76,5 +105,36 @@ fun AppearanceSettingsSection(
             onCheckedChange = { viewModel.updateBoolean("glassEffect", it) },
             icon = Icons.Rounded.BlurOn,
         )
+
+        SettingToggleItem(
+            title = "Blur Effects",
+            subtitle = "Allow blurred surfaces where supported",
+            checked = settings.blurEffects,
+            onCheckedChange = { viewModel.updateBoolean("blurEffects", it) },
+            icon = Icons.Rounded.BlurOn,
+        )
+
+        SettingToggleItem(
+            title = "Rounded Buttons",
+            subtitle = "Use rounded shapes throughout the app",
+            checked = settings.roundedButtons,
+            onCheckedChange = { viewModel.updateBoolean("roundedButtons", it) },
+            icon = Icons.Rounded.RoundedCorner,
+        )
     }
 }
+
+private val ACCENT_PRESETS =
+    linkedMapOf(
+        "Default" to 0L,
+        "Teal" to 0xFF006B5EL,
+        "Blue" to 0xFF1565C0L,
+        "Purple" to 0xFF6A1B9AL,
+        "Orange" to 0xFFE65100L,
+    )
+
+private fun accentLabel(value: Long): String =
+    ACCENT_PRESETS.entries
+        .firstOrNull { it.value == value }
+        ?.key
+        ?: "Default"

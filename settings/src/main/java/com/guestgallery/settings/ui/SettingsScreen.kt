@@ -1,7 +1,10 @@
 package com.guestgallery.settings.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guestgallery.core.theme.Dimens
+import com.guestgallery.core.theme.motionDuration
+import com.guestgallery.core.ui.components.GlassSurface
 import com.guestgallery.core.ui.components.GuestGalleryTopBar
 import com.guestgallery.settings.ui.components.SettingsCategory
 import com.guestgallery.settings.ui.sections.AccessibilitySettingsSection
@@ -49,6 +54,11 @@ import com.guestgallery.settings.ui.sections.PrivacySettingsSection
 import com.guestgallery.settings.ui.sections.SecuritySettingsSection
 import com.guestgallery.settings.ui.sections.ViewerSettingsSection
 import kotlinx.coroutines.launch
+
+private const val CATEGORY_ENTER_EXPANSION_MS = 220
+private const val CATEGORY_ENTER_FADE_MS = 180
+private const val CATEGORY_EXIT_EXPANSION_MS = 180
+private const val CATEGORY_EXIT_FADE_MS = 140
 
 @Composable
 fun SettingsScreen(
@@ -274,9 +284,20 @@ private fun AnimatedCategoryVisibility(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = expandVertically(),
-        exit = shrinkVertically(),
+        enter =
+            expandVertically(animationSpec = tween(motionDuration(CATEGORY_ENTER_EXPANSION_MS))) +
+                fadeIn(animationSpec = tween(motionDuration(CATEGORY_ENTER_FADE_MS))),
+        exit =
+            shrinkVertically(animationSpec = tween(motionDuration(CATEGORY_EXIT_EXPANSION_MS))) +
+                fadeOut(animationSpec = tween(motionDuration(CATEGORY_EXIT_FADE_MS))),
     ) {
-        content()
+        GlassSurface(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimens.SpacingSm, vertical = Dimens.SpacingXs),
+        ) {
+            content()
+        }
     }
 }

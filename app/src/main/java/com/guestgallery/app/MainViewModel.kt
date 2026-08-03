@@ -77,7 +77,11 @@ class MainViewModel
                 } ?: true
 
             if (authRequired) {
-                _appState.value = AppState.ExitAuth
+                _appState.value =
+                    AppState.ExitAuth(
+                        requireFingerprint = currentSettings?.requireFingerprintToExit == true,
+                        requirePin = currentSettings?.requirePinToExit == true,
+                    )
             } else {
                 destroyAndFinish()
             }
@@ -106,7 +110,10 @@ class MainViewModel
 
         private fun destroyAndFinish() {
             viewModelScope.launch {
-                if (settings.value?.clearCacheOnExit == true) {
+                if (
+                    settings.value?.clearCacheOnExit == true ||
+                    settings.value?.autoDeleteTempFiles == true
+                ) {
                     runCatching { settingsRepository.clearCache() }
                 }
                 destroySessionUseCase()
@@ -129,5 +136,8 @@ sealed class AppState {
     data class Viewing(val session: ViewingSession?) : AppState()
 
     /** Awaiting authentication before exiting. */
-    data object ExitAuth : AppState()
+    data class ExitAuth(
+        val requireFingerprint: Boolean,
+        val requirePin: Boolean,
+    ) : AppState()
 }

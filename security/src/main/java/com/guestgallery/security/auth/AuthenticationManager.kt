@@ -44,6 +44,8 @@ class AuthenticationManager
             activity: FragmentActivity,
             title: String,
             subtitle: String,
+            allowBiometric: Boolean = true,
+            allowDeviceCredential: Boolean = true,
             onResult: (AuthResult) -> Unit,
         ) {
             val executor = ContextCompat.getMainExecutor(activity)
@@ -68,11 +70,18 @@ class AuthenticationManager
 
             val prompt = BiometricPrompt(activity, executor, callback)
 
+            val allowedAuthenticators =
+                when {
+                    allowBiometric && allowDeviceCredential -> BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+                    allowBiometric -> BIOMETRIC_STRONG
+                    else -> DEVICE_CREDENTIAL
+                }
+
             val promptInfo =
                 BiometricPrompt.PromptInfo.Builder()
                     .setTitle(title)
                     .setSubtitle(subtitle)
-                    .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+                    .setAllowedAuthenticators(allowedAuthenticators)
                     .build()
 
             prompt.authenticate(promptInfo)

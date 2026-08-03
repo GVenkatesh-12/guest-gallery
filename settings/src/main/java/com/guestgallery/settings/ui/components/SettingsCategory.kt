@@ -1,6 +1,7 @@
 package com.guestgallery.settings.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.guestgallery.core.theme.Dimens
+import com.guestgallery.core.theme.motionDuration
 
 @Composable
 fun SettingsCategory(
@@ -32,6 +34,7 @@ fun SettingsCategory(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(motionDuration(220)),
         label = "category_expand_rotation",
     )
 

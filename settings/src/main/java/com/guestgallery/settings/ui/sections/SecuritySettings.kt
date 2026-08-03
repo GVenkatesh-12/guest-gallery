@@ -137,5 +137,19 @@ fun SecuritySettingsSection(
             onCheckedChange = { onUpdate("hideRecentAppsPreview", it) },
             icon = Icons.Rounded.Security,
         )
+        SettingToggleItem(
+            title = "Blank on App Switch",
+            subtitle = "Keep the viewer protected while switching apps",
+            checked = settings.blankScreenOnAppSwitch,
+            onCheckedChange = { onUpdate("blankScreenOnAppSwitch", it) },
+            icon = Icons.Rounded.Security,
+        )
+        SettingToggleItem(
+            title = "Secure Window Flag",
+            subtitle = "Use Android's secure-window protection",
+            checked = settings.secureWindowFlag,
+            onCheckedChange = { onUpdate("secureWindowFlag", it) },
+            icon = Icons.Rounded.Security,
+        )
     }
 }
