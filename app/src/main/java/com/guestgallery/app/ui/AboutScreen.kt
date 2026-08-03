@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.guestgallery.app.BuildConfig
 import com.guestgallery.app.R
 import com.guestgallery.core.theme.Dimens
 import com.guestgallery.core.ui.components.GuestGalleryTopBar
@@ -57,7 +58,7 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = stringResource(id = R.string.version, "1.0.0"),
+                text = stringResource(id = R.string.version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

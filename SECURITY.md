@@ -6,7 +6,7 @@ We actively support and fix security bugs on the following versions of Guest Gal
 
 | Version | Supported |
 | ------- | --------- |
-| 1.0.x   | Yes       |
+| 3.x     | Yes       |
 
 ## Security Philosophy
 
