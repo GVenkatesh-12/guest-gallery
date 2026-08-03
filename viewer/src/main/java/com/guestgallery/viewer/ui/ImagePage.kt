@@ -8,8 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import me.saket.telephoto.zoomable.DoubleClickToZoomListener
 import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
@@ -31,6 +33,7 @@ fun ImagePage(
     contentDescription: String,
     maxZoom: Float,
     enableZoom: Boolean,
+    enableDoubleTapZoom: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -50,6 +53,8 @@ fun ImagePage(
             ImageRequest.Builder(context)
                 .data(imageUri)
                 .crossfade(true)
+                // Shared images are never written to Coil's disk cache.
+                .diskCachePolicy(CachePolicy.DISABLED)
                 .build()
         }
 
@@ -63,22 +68,22 @@ fun ImagePage(
                 contentDescription = contentDescription,
                 state = imageState,
                 contentScale = ContentScale.Fit,
+                gesturesEnabled = enableZoom,
+                onDoubleClick =
+                    if (enableDoubleTapZoom) {
+                        DoubleClickToZoomListener.cycle()
+                    } else {
+                        DoubleClickToZoomListener { _, _ -> }
+                    },
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
-            // Fallback without zoom — still uses ZoomableAsyncImage but
-            // zoom is effectively disabled via maxZoom = 1f
-            val noZoomState =
-                rememberZoomableState(
-                    zoomSpec = remember { ZoomSpec(maxZoomFactor = 1f) },
-                )
-            val noZoomImageState = rememberZoomableImageState(noZoomState)
-
             ZoomableAsyncImage(
                 model = model,
                 contentDescription = contentDescription,
-                state = noZoomImageState,
+                state = imageState,
                 contentScale = ContentScale.Fit,
+                gesturesEnabled = false,
                 modifier = Modifier.fillMaxSize(),
             )
         }

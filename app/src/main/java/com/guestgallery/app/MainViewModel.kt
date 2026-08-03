@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guestgallery.domain.model.AppSettings
 import com.guestgallery.domain.model.ViewingSession
+import com.guestgallery.domain.repository.SettingsRepository
 import com.guestgallery.domain.usecase.CreateSessionUseCase
 import com.guestgallery.domain.usecase.DestroySessionUseCase
 import com.guestgallery.domain.usecase.GetSettingsUseCase
@@ -29,6 +30,7 @@ class MainViewModel
         private val createSessionUseCase: CreateSessionUseCase,
         private val destroySessionUseCase: DestroySessionUseCase,
         getSettingsUseCase: GetSettingsUseCase,
+        private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
         /** Observable settings stream, shared across collectors. */
         val settings: StateFlow<AppSettings?> =
@@ -104,6 +106,9 @@ class MainViewModel
 
         private fun destroyAndFinish() {
             viewModelScope.launch {
+                if (settings.value?.clearCacheOnExit == true) {
+                    runCatching { settingsRepository.clearCache() }
+                }
                 destroySessionUseCase()
                 _finishEvent.value = true
             }

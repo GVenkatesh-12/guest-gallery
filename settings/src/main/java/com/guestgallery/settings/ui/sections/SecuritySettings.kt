@@ -15,16 +15,19 @@ import androidx.compose.material.icons.rounded.ScreenLockPortrait
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.ScreenShare
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.guestgallery.domain.model.AppSettings
+import com.guestgallery.settings.ui.components.SettingSliderItem
 import com.guestgallery.settings.ui.components.SettingToggleItem
 
 @Composable
 fun SecuritySettingsSection(
     settings: AppSettings,
     onUpdate: (String, Boolean) -> Unit,
+    onUpdateInt: (String, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -104,6 +107,21 @@ fun SecuritySettingsSection(
             checked = settings.autoCloseAfterLastImage,
             onCheckedChange = { onUpdate("autoCloseAfterLastImage", it) },
             icon = Icons.Rounded.ScreenLockPortrait,
+        )
+        SettingSliderItem(
+            title = "Auto Close Timeout",
+            subtitle = "Exit after the configured number of minutes (0 disables it)",
+            value = settings.autoCloseAfterTimeoutMinutes.toFloat(),
+            onValueChange = { onUpdateInt("autoCloseAfterTimeoutMinutes", it.toInt()) },
+            valueRange = 0f..60f,
+            steps = 11,
+            valueLabel =
+                if (settings.autoCloseAfterTimeoutMinutes == 0) {
+                    "Off"
+                } else {
+                    "${settings.autoCloseAfterTimeoutMinutes} min"
+                },
+            icon = Icons.Rounded.Timer,
         )
         SettingToggleItem(
             title = "Lock Orientation",

@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,7 +40,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guestgallery.core.theme.Dimens
 import com.guestgallery.core.ui.components.FadeAnimatedVisibility
 import com.guestgallery.core.ui.components.SlideUpAnimatedVisibility
+import com.guestgallery.domain.model.TransitionStyle
 import com.guestgallery.domain.model.ViewerBackground
+import kotlin.math.absoluteValue
 
 /**
  * Main image viewer screen.
@@ -95,6 +99,14 @@ fun ViewerScreen(
         }
     }
 
+    LaunchedEffect(settings?.autoCloseAfterTimeoutMinutes, uiState.totalCount) {
+        val timeoutMinutes = settings?.autoCloseAfterTimeoutMinutes ?: 0
+        if (timeoutMinutes > 0 && uiState.totalCount > 0) {
+            kotlinx.coroutines.delay(timeoutMinutes * 60_000L)
+            viewModel.requestTimedExit()
+        }
+    }
+
     Box(
         modifier =
             modifier
@@ -112,6 +124,7 @@ fun ViewerScreen(
             HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = settings.preloadCount,
+                contentPadding = PaddingValues(horizontal = settings.edgePadding.dp),
                 modifier = Modifier.fillMaxSize(),
                 key = { uiState.imageUris[it] },
             ) { pageIndex ->
@@ -120,6 +133,8 @@ fun ViewerScreen(
                     contentDescription = "Image ${pageIndex + 1} of ${uiState.totalCount}",
                     maxZoom = settings.maximumZoom,
                     enableZoom = settings.enableZoom,
+                    enableDoubleTapZoom = settings.enableDoubleTapZoom,
+                    modifier = Modifier.pageTransition(settings.transitionStyle, pageIndex, pagerState),
                 )
             }
         }
@@ -165,6 +180,32 @@ fun ViewerScreen(
         }
     }
 }
+
+private fun Modifier.pageTransition(
+    transitionStyle: TransitionStyle,
+    pageIndex: Int,
+    pagerState: androidx.compose.foundation.pager.PagerState,
+): Modifier =
+    if (transitionStyle == TransitionStyle.NONE) {
+        this
+    } else {
+        graphicsLayer {
+            val pageOffset =
+                ((pageIndex - pagerState.currentPage) + pagerState.currentPageOffsetFraction)
+                    .absoluteValue
+                    .coerceIn(0f, 1f)
+            when (transitionStyle) {
+                TransitionStyle.CROSSFADE -> alpha = 1f - pageOffset
+                TransitionStyle.SLIDE -> translationX = pageOffset * size.width.toFloat()
+                TransitionStyle.DEPTH -> {
+                    alpha = 1f - (pageOffset * 0.5f)
+                    scaleX = 1f - (pageOffset * 0.1f)
+                    scaleY = 1f - (pageOffset * 0.1f)
+                }
+                TransitionStyle.NONE -> Unit
+            }
+        }
+    }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Private helper composables
@@ -245,6 +286,17 @@ private fun MetadataBar(
 ) {
     if (imageUri == null) return
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val metadata by androidx.compose.runtime.produceState<ImageMetadata?>(
+        initialValue = null,
+        key1 = imageUri,
+    ) {
+        value =
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                loadImageMetadata(context, imageUri)
+            }
+    }
+
     Column(
         modifier =
             modifier
@@ -255,9 +307,8 @@ private fun MetadataBar(
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         if (showFileName) {
-            val fileName = imageUri.substringAfterLast('/')
             Text(
-                text = fileName,
+                text = metadata?.fileName ?: imageUri.substringAfterLast('/'),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.9f),
                 maxLines = 1,
@@ -265,17 +316,74 @@ private fun MetadataBar(
         }
         if (showResolution) {
             Text(
-                text = "Resolution: —",
+                text = metadata?.resolution?.let { "Resolution: $it" } ?: "Resolution: unavailable",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.7f),
             )
         }
         if (showFileSize) {
             Text(
-                text = "Size: —",
+                text =
+                    metadata?.sizeBytes?.let { "Size: ${formatFileSize(it)}" }
+                        ?: "Size: unavailable",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.7f),
             )
         }
     }
+}
+
+private data class ImageMetadata(
+    val fileName: String?,
+    val resolution: String?,
+    val sizeBytes: Long?,
+)
+
+private fun loadImageMetadata(
+    context: android.content.Context,
+    imageUri: String,
+): ImageMetadata {
+    val uri = android.net.Uri.parse(imageUri)
+    var fileName: String? = uri.lastPathSegment?.substringAfterLast('/')
+    var sizeBytes: Long? = null
+
+    runCatching {
+        context.contentResolver.query(
+            uri,
+            arrayOf(
+                android.provider.OpenableColumns.DISPLAY_NAME,
+                android.provider.OpenableColumns.SIZE,
+            ),
+            null,
+            null,
+            null,
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                if (nameIndex >= 0) fileName = cursor.getString(nameIndex)
+                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) sizeBytes = cursor.getLong(sizeIndex)
+            }
+        }
+    }
+
+    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    runCatching {
+        context.contentResolver.openInputStream(uri)?.use {
+            android.graphics.BitmapFactory.decodeStream(it, null, bounds)
+        }
+    }
+
+    val resolution =
+        bounds.outWidth.takeIf { it > 0 }?.let { width ->
+            bounds.outHeight.takeIf { it > 0 }?.let { height -> "$width × $height" }
+        }
+
+    return ImageMetadata(fileName, resolution, sizeBytes)
+}
+
+private fun formatFileSize(bytes: Long): String {
+    if (bytes < 1_024) return "$bytes B"
+    if (bytes < 1_024 * 1_024) return "%.1f KB".format(bytes / 1_024f)
+    return "%.1f MB".format(bytes / (1_024f * 1_024f))
 }

@@ -2,8 +2,8 @@
 
 package com.guestgallery.app
 
-import android.content.pm.ActivityInfo
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,21 +11,29 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.guestgallery.app.navigation.AppNavHost
 import com.guestgallery.core.theme.GuestGalleryTheme
 import com.guestgallery.core.theme.ThemeMode
 import com.guestgallery.domain.model.AppSettings
+import com.guestgallery.security.lockdown.ScreenPinningHelper
+import com.guestgallery.security.ui.ScreenPinningGuideDialog
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Single-activity host for Guest Gallery.
@@ -39,6 +47,9 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var screenPinningHelper: ScreenPinningHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Must be called before super.onCreate per the SplashScreen API contract
@@ -62,7 +73,27 @@ class MainActivity : FragmentActivity() {
 
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
+            val appState by viewModel.appState.collectAsStateWithLifecycle()
             val currentSettings = settings ?: return@setContent
+            var showPinningGuide by remember { mutableStateOf(false) }
+            var pinningGuideShown by remember { mutableStateOf(false) }
+
+            LaunchedEffect(appState, currentSettings.enableScreenPinningReminder) {
+                if (appState !is AppState.Viewing) {
+                    pinningGuideShown = false
+                    showPinningGuide = false
+                    return@LaunchedEffect
+                }
+
+                if (
+                    currentSettings.enableScreenPinningReminder &&
+                    !pinningGuideShown &&
+                    !screenPinningHelper.isScreenPinningActive(this@MainActivity)
+                ) {
+                    pinningGuideShown = true
+                    showPinningGuide = true
+                }
+            }
 
             val themeMode =
                 when (currentSettings.themeMode) {
@@ -79,6 +110,16 @@ class MainActivity : FragmentActivity() {
                 AppNavHost(
                     mainViewModel = viewModel,
                 )
+
+                if (showPinningGuide) {
+                    ScreenPinningGuideDialog(
+                        onDismiss = { showPinningGuide = false },
+                        onPinApp = {
+                            showPinningGuide = false
+                            screenPinningHelper.requestScreenPinning(this@MainActivity)
+                        },
+                    )
+                }
             }
         }
     }
@@ -133,14 +174,30 @@ class MainActivity : FragmentActivity() {
 
     private fun observeSecuritySettings() {
         lifecycleScope.launch {
-            viewModel.settings.collectLatest { settings ->
+            combine(viewModel.settings, viewModel.appState) { settings, appState ->
+                settings to appState
+            }.collectLatest { (settings, appState) ->
                 if (settings == null) return@collectLatest
-                applySecurityFlags(settings)
+                applySecurityFlags(settings, appState is AppState.Viewing)
             }
         }
     }
 
-    private fun applySecurityFlags(settings: AppSettings) {
+    private fun applySecurityFlags(
+        settings: AppSettings,
+        secureMode: Boolean,
+    ) {
+        if (!secureMode) {
+            window.clearFlags(
+                WindowManager.LayoutParams.FLAG_SECURE or
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+            )
+            WindowCompat.getInsetsController(window, window.decorView)
+                .show(WindowInsetsCompat.Type.systemBars())
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            return
+        }
+
         val shouldSecureWindow =
             settings.secureWindowFlag ||
                 settings.disableScreenshots ||

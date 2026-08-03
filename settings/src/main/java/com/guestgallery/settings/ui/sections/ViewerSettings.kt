@@ -68,6 +68,13 @@ fun ViewerSettingsSection(
             icon = Icons.Rounded.ZoomIn,
         )
         SettingToggleItem(
+            title = "Double-tap to Zoom",
+            subtitle = "Toggle between the fitted and maximum zoom levels",
+            checked = settings.enableDoubleTapZoom,
+            onCheckedChange = { viewModel.updateBoolean("enableDoubleTapZoom", it) },
+            icon = Icons.Rounded.ZoomIn,
+        )
+        SettingToggleItem(
             title = "Enable Rotation",
             subtitle = "Allow rotating images with gestures",
             checked = settings.enableRotation,
@@ -108,6 +115,26 @@ fun ViewerSettingsSection(
             valueRange = 1.5f..10f,
             valueLabel = "%.1fx".format(settings.maximumZoom),
             icon = Icons.Rounded.ZoomIn,
+        )
+        SettingSliderItem(
+            title = "Gesture Sensitivity",
+            subtitle = "Adjust how strongly touch gestures affect the viewer",
+            value = settings.gestureSensitivity,
+            onValueChange = { viewModel.updateFloat("gestureSensitivity", it) },
+            valueRange = 0.5f..2.0f,
+            steps = 5,
+            valueLabel = "%.1fx".format(settings.gestureSensitivity),
+            icon = Icons.Rounded.Speed,
+        )
+        SettingSliderItem(
+            title = "Edge Padding",
+            subtitle = "Add space around images in the pager",
+            value = settings.edgePadding.toFloat(),
+            onValueChange = { viewModel.updateInt("edgePadding", it.toInt()) },
+            valueRange = 0f..64f,
+            steps = 7,
+            valueLabel = "${settings.edgePadding}dp",
+            icon = Icons.Rounded.AspectRatio,
         )
         SettingToggleItem(
             title = "Keep Screen Awake",

@@ -122,6 +122,7 @@ fun SettingsScreen(
                     SecuritySettingsSection(
                         settings = currentSettings,
                         onUpdate = { key, value -> viewModel.updateBoolean(key, value) },
+                        onUpdateInt = { key, value -> viewModel.updateInt(key, value) },
                     )
                 }
             }

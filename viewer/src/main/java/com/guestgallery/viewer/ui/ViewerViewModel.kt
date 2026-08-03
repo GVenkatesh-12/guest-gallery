@@ -133,6 +133,13 @@ class ViewerViewModel
             _localState.update { it.copy(exitRequested = false) }
         }
 
+        /** Request exit after the configured inactivity timeout. */
+        fun requestTimedExit() {
+            if (uiState.value.totalCount > 0) {
+                _localState.update { it.copy(exitRequested = true) }
+            }
+        }
+
         override fun onCleared() {
             super.onCleared()
             slideshowController?.stop()
