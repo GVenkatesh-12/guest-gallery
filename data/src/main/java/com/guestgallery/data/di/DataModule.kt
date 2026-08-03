@@ -60,6 +60,5 @@ abstract class DataModule {
         fun provideGetSettingsUseCase(settingsRepository: SettingsRepository): GetSettingsUseCase {
             return GetSettingsUseCase(settingsRepository)
         }
-
     }
 }

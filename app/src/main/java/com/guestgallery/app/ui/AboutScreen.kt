@@ -99,8 +99,8 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                    text =
-                        "Guest Gallery opens only the photos you share in a temporary session. " +
+                text =
+                    "Guest Gallery opens only the photos you share in a temporary session. " +
                         "The viewer blocks screenshots and recordings, keeps the screen awake, hides " +
                         "system bars, and offers a screen-pinning reminder to protect the rest of your device.",
                 style = MaterialTheme.typography.bodyMedium,

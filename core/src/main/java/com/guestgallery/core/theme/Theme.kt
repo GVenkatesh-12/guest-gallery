@@ -76,9 +76,7 @@ private val DarkColorScheme =
     )
 
 @Composable
-fun GuestGalleryTheme(
-    content: @Composable () -> Unit,
-) {
+fun GuestGalleryTheme(content: @Composable () -> Unit) {
     val isDark = isSystemInDarkTheme()
     val context = LocalContext.current
     val colorScheme =
