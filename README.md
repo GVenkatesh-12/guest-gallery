@@ -1,7 +1,7 @@
 # Guest Gallery — Privacy-First Android Photo Sharing App
 
-[![Android CI](https://github.com/guestgallery/guest-gallery/actions/workflows/ci.yml/badge.svg)](https://github.com/guestgallery/guest-gallery/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/guestgallery/guest-gallery)](https://github.com/guestgallery/guest-gallery/releases)
+[![Android CI](https://github.com/GVenkatesh-12/guest-gallery/actions/workflows/ci.yml/badge.svg)](https://github.com/GVenkatesh-12/guest-gallery/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/GVenkatesh-12/guest-gallery)](https://github.com/GVenkatesh-12/guest-gallery/releases)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 **Guest Gallery** is a lightweight, secure, and privacy-focused Android application designed for a single purpose: letting you safely hand your phone to someone else for viewing selected photos without exposing the rest of your gallery, notifications, or device.
@@ -104,7 +104,7 @@ graph TD
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/guestgallery/guest-gallery.git
+   git clone https://github.com/GVenkatesh-12/guest-gallery.git
    cd guest-gallery
    ```
 2. Download the font files using the setup script:
