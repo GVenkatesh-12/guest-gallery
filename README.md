@@ -118,3 +118,7 @@ graph TD
 ## 📄 License
 
 Guest Gallery is open-source software licensed under the [Apache License 2.0](LICENSE).
+
+---
+
+[Privacy Policy](privacy-policy.html) · [Security Policy](SECURITY.md) · [Source on GitHub](https://github.com/GVenkatesh-12/guest-gallery)
