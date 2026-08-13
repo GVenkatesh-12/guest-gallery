@@ -21,8 +21,10 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.guestgallery.app.navigation.AppNavHost
 import com.guestgallery.core.theme.GuestGalleryTheme
 import com.guestgallery.security.lockdown.ScreenPinningHelper
@@ -30,6 +32,7 @@ import com.guestgallery.security.ui.ScreenPinningGuideDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +40,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     private val viewModel: MainViewModel by viewModels()
+
+    private var isScreenPinned by mutableStateOf(false)
 
     @Inject
     lateinit var screenPinningHelper: ScreenPinningHelper
@@ -48,6 +53,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { viewModel.settings.value == null }
         enableEdgeToEdge()
+        refreshScreenPinningState()
 
         if (savedInstanceState == null) {
             handleIncomingIntent(intent)
@@ -55,6 +61,7 @@ class MainActivity : FragmentActivity() {
 
         observeViewerSecurity()
         observeFinishEvent()
+        observeScreenPinningState()
 
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -85,6 +92,7 @@ class MainActivity : FragmentActivity() {
                 AppNavHost(
                     mainViewModel = viewModel,
                     onExitClick = ::requestExit,
+                    isScreenPinned = isScreenPinned,
                 )
 
                 if (showPinningGuide) {
@@ -93,6 +101,7 @@ class MainActivity : FragmentActivity() {
                         onPinApp = {
                             showPinningGuide = false
                             screenPinningHelper.requestScreenPinning(this@MainActivity)
+                            refreshScreenPinningState()
                         },
                     )
                 }
@@ -103,6 +112,16 @@ class MainActivity : FragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIncomingIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshScreenPinningState()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) refreshScreenPinningState()
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
@@ -173,6 +192,26 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    /**
+     * Screen pinning can end through a system gesture without an activity lifecycle event.
+     * Keeping this state current lets Compose stop intercepting Back while pinned and restore
+     * normal exit behavior immediately after Android has unpinned the task.
+     */
+    private fun observeScreenPinningState() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (isActive) {
+                    refreshScreenPinningState()
+                    delay(SCREEN_PINNING_STATE_REFRESH_MS)
+                }
+            }
+        }
+    }
+
+    private fun refreshScreenPinningState() {
+        isScreenPinned = screenPinningHelper.isScreenPinningActive(this)
+    }
+
     private fun requestExit() {
         if (screenPinningHelper.isScreenPinningActive(this)) {
             Toast.makeText(this, R.string.unpin_to_exit, Toast.LENGTH_SHORT).show()
@@ -184,3 +223,4 @@ class MainActivity : FragmentActivity() {
 }
 
 private const val PINNING_GUIDE_DELAY_MS = 260L
+private const val SCREEN_PINNING_STATE_REFRESH_MS = 250L

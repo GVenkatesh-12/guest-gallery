@@ -7,8 +7,10 @@ import androidx.datastore.preferences.core.edit
 import com.guestgallery.domain.model.AppSettings
 import com.guestgallery.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,10 +37,11 @@ class SettingsRepositoryImpl
             }
         }
 
-        override suspend fun clearCache() {
-            context.cacheDir.deleteContents()
-            context.externalCacheDirs.filterNotNull().forEach { it.deleteContents() }
-        }
+        override suspend fun clearCache() =
+            withContext(Dispatchers.IO) {
+                context.cacheDir.deleteContents()
+                context.externalCacheDirs.filterNotNull().forEach { it.deleteContents() }
+            }
     }
 
 private fun File.deleteContents() {

@@ -64,6 +64,8 @@ jobs:
             CHANGELOG=$(git log "${PREVIOUS_TAG}..${CURRENT_TAG}" --pretty=format:"- %s (%h)" --no-merges)
           fi
 
+          echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
+
           # Write to file to handle multi-line output
           echo "$CHANGELOG" > changelog.txt
 

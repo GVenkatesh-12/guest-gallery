@@ -36,6 +36,7 @@ import com.guestgallery.core.ui.components.FadeAnimatedVisibility
 @Composable
 fun ViewerScreen(
     onExitClick: () -> Unit,
+    isScreenPinned: Boolean,
     modifier: Modifier = Modifier,
     viewModel: ViewerViewModel = hiltViewModel(),
 ) {
@@ -47,7 +48,8 @@ fun ViewerScreen(
             pageCount = { pageCount },
         )
 
-    BackHandler(onBack = onExitClick)
+    // Android must receive Back while screen pinning is active so its unpin gesture works.
+    BackHandler(enabled = !isScreenPinned, onBack = onExitClick)
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect(viewModel::setCurrentPage)
