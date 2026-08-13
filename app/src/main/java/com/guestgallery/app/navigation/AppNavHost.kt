@@ -21,6 +21,7 @@ import com.guestgallery.viewer.navigation.viewerScreen
 fun AppNavHost(
     mainViewModel: MainViewModel,
     onExitClick: () -> Unit,
+    isScreenPinned: Boolean,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = if (mainViewModel.appState.value is AppState.Viewing) Routes.VIEWER else Routes.WELCOME,
@@ -54,7 +55,10 @@ fun AppNavHost(
             )
         }
 
-        viewerScreen(onExitClick = onExitClick)
+        viewerScreen(
+            onExitClick = onExitClick,
+            isScreenPinned = isScreenPinned,
+        )
 
         settingsScreen(onBackClick = { navController.popBackStack() })
 
