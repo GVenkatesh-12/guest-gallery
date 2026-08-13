@@ -13,5 +13,5 @@
     <string name="privacy_promise">Your photos never leave your device. No internet. No tracking. No cloud.</string>
     <string name="version">Version %1$s</string>
     <string name="license">Apache License 2.0</string>
-    <string name="unpin_to_exit">Use Android's screen-pinning gesture to unpin Guest Gallery, then press Back again to exit.</string>
+    <string name="unpin_to_exit">Use Android\'s screen-pinning gesture to unpin Guest Gallery, then press Back again to exit.</string>
 </resources>
