@@ -11,17 +11,14 @@ const val VIEWER_ROUTE = "viewer"
 /**
  * Registers the viewer screen destination in the navigation graph.
  *
- * @param onExitClick     Callback when the user exits the viewer.
- * @param isScreenPinned  Whether Android screen pinning is active for the activity.
+ * @param onExitClick Callback when the user exits the viewer.
  */
 fun NavGraphBuilder.viewerScreen(
     onExitClick: () -> Unit,
-    isScreenPinned: Boolean,
 ) {
     composable(VIEWER_ROUTE) {
         ViewerScreen(
             onExitClick = onExitClick,
-            isScreenPinned = isScreenPinned,
         )
     }
 }

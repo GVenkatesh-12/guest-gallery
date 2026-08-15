@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.0] - 2026-08-13
 
 ### Fixed
-- Let Android receive Back while the gallery is screen-pinned, so the system unpin gesture works.
-- Restore normal Back navigation as soon as screen pinning ends.
+- Intercept and safely handle Back gestures while screen-pinned to prevent system closing conflicts and ANR crashes upon unpinning.
+- Display screen-pinning exit guidance toast on Back gesture during pinned mode.
 - Move cache cleanup off the main thread to prevent an ANR while exiting after viewing media.
 
 ## [3.0] - 2026-08-03
