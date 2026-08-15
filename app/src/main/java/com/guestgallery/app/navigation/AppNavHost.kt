@@ -54,9 +54,7 @@ fun AppNavHost(
             )
         }
 
-        viewerScreen(
-            onExitClick = onExitClick,
-        )
+        viewerScreen(onExitClick = onExitClick)
 
         settingsScreen(onBackClick = { navController.popBackStack() })
 
